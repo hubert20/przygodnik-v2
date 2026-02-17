@@ -7,7 +7,7 @@ Centralne repozytorium reguł, agentów i skilli dla Cursora. Metodologia AI-Fir
 
 ## Quick Start
 
-Z README wynika, że projekt **Rules** służy jako centralne repozytorium reguł, agentów i skilli dla Cursora (AI-First, Model 3 Faz). Używasz go w zależności od tego, czy pracujesz sam, czy w zespole.
+Projekt **Rules** służy jako centralne repozytorium reguł, agentów i skilli dla Cursora (AI-First, Model 3 Faz). Używasz go w zależności od tego, czy pracujesz sam, czy w zespole.
 
 ### Szybki start (jeden projekt)
 
