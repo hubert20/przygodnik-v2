@@ -1,0 +1,29 @@
+# Environment & secrets
+.env
+.env.local
+.env.*.local
+
+# Project-specific sync config (per-project, not in central repo)
+.cursor-sync.json
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDEs
+.idea/
+.vscode/
+
+# Dependencies
+node_modules/
+vendor/
+
+# Logs & cache
+*.log
+.cache/
+
+# Build / artifacts
+dist/
+build/

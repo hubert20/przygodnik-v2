@@ -1,0 +1,4 @@
+{
+  "source": "../rules",
+  "_comment": "Relative or absolute path to the central 'rules' repository. Each project reads this file to know where to sync from. Run: pwsh scripts/cursor-sync.ps1"
+}
