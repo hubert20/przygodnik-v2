@@ -28,6 +28,8 @@ Z README wynika, że projekt **Rules** służy jako centralne repozytorium regu�
 - **Rules** = centralne repo (to, które masz).
 - Każdy **projekt aplikacji** (np. `app-bank-import/`) ma własne repo i **synchronizuje** się z `rules/` skryptem.
 
+> **Skrypt sync:** Wymaga PowerShell Core (`pwsh`). Działa na Windows, Linux i macOS. Instalacja: `sudo apt install powershell` (Ubuntu/Debian), `brew install powershell` (macOS) – więcej: [PowerShell install](https://learn.microsoft.com/en-us/powershell/scripting/install/installing-powershell).
+
 **Setup nowego projektu:**
 
 ```powershell
