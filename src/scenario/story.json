@@ -1,0 +1,116 @@
+{
+  "id": "przygodnik-v1-demo",
+  "name": "Przygodnik - Demo",
+  "firstSceneId": "start",
+  "endingRules": [
+    {
+      "key": "curiosity",
+      "minValue": 2,
+      "endingSceneId": "ending_curiosity"
+    },
+    {
+      "key": "courage",
+      "minValue": 2,
+      "endingSceneId": "ending_courage"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "start",
+      "title": "Brama do Doliny Mgiel",
+      "text": "Stoisz przed starą bramą. Po lewej stronie coś błyszczy, po prawej słychać cichy śmiech.",
+      "interactiveHint": "Kliknij wybór i zobacz, co się stanie dalej.",
+      "choices": [
+        {
+          "id": "to_garden",
+          "label": "Idę w stronę ogrodu",
+          "nextSceneId": "garden",
+          "effects": [
+            { "key": "curiosity", "by": 1 }
+          ]
+        },
+        {
+          "id": "to_tower",
+          "label": "Wchodzę na wieżę",
+          "nextSceneId": "tower",
+          "effects": [
+            { "key": "courage", "by": 1 }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "garden",
+      "title": "Ogród Szeptów",
+      "text": "W krzakach znajduje się zagadkowy medalion. Możesz go zbadać albo pobiec dalej.",
+      "choices": [
+        {
+          "id": "inspect_medallion",
+          "label": "Badam medalion",
+          "nextSceneId": "crossroads",
+          "effects": [
+            { "key": "curiosity", "by": 1 }
+          ]
+        },
+        {
+          "id": "run_crossroads",
+          "label": "Biegnę dalej",
+          "nextSceneId": "crossroads"
+        }
+      ]
+    },
+    {
+      "id": "tower",
+      "title": "Wieża Wiatru",
+      "text": "Schody trzeszczą, a wiatr dmucha coraz mocniej. Możesz pomóc ptakowi albo szybko zejść na dół.",
+      "choices": [
+        {
+          "id": "help_bird",
+          "label": "Pomagam ptakowi",
+          "nextSceneId": "crossroads",
+          "effects": [
+            { "key": "courage", "by": 1 }
+          ]
+        },
+        {
+          "id": "go_down",
+          "label": "Schodzę na dół",
+          "nextSceneId": "crossroads"
+        }
+      ]
+    },
+    {
+      "id": "crossroads",
+      "title": "Leśne Rozdroże",
+      "text": "Docierasz do rozdroża. Teraz historia zmierza do finału zależnie od Twoich decyzji.",
+      "choices": [
+        {
+          "id": "finish",
+          "label": "Zobacz zakończenie",
+          "nextSceneId": "ending_default"
+        }
+      ]
+    },
+    {
+      "id": "ending_curiosity",
+      "title": "Zakończenie Odkrywcy",
+      "text": "Twoja ciekawość odkryła sekret Doliny. Jesteś Mistrzem Tropów!",
+      "endTag": "ODKRYWCA",
+      "choices": []
+    },
+    {
+      "id": "ending_courage",
+      "title": "Zakończenie Strażnika",
+      "text": "Dzięki odwadze uratowałeś mieszkańców Doliny. Jesteś Strażnikiem Wiatru!",
+      "endTag": "STRAZNIK",
+      "choices": []
+    },
+    {
+      "id": "ending_default",
+      "title": "Zakończenie Wędrowca",
+      "text": "Dotarłeś do końca przygody i zdobyłeś mapę dalszych wypraw.",
+      "endTag": "WEDROWIEC",
+      "choices": []
+    }
+  ]
+}
