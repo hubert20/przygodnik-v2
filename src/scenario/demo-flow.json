@@ -6,8 +6,8 @@
       "type": "welcome",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "heading": "Lorem ipsum",
-      "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea.",
+      "heading": "Przeżyj fantastyczną przygodę <br/> i uratuj szkołę!",
+      "description": "Moc Zeszytu Przeznaczenia zagraża przyszłości twojej szkoły. By ją uratować musisz ruszyć na wyprawę pełną tajemnic, przygód i niebezpieczeństw.\n\nPoznaj nowych przyjaciół, zmierz się z fantastycznymi stworzeniami, zbierz magiczne artefakty i odkryj tajemnice szkoły!\n\nPrzygoda czeka!",
       "image": "s000_welcome_base_desktop_v01.png",
       "primaryActionLabel": "Wejdz do gry!",
       "nextScreenId": "s001"
@@ -17,10 +17,10 @@
       "type": "intro",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "heading": "STWORZ POSTAC",
+      "heading": "STWÓRZ POSTAĆ",
       "nameLabel": "Nadaj imie bohaterowi",
       "namePlaceholder": "Wpisz tutaj imie...",
-      "genderLabel": "Okresl typ postaci",
+      "genderLabel": "Określ typ postaci",
       "genderOptions": [
         {
           "value": "female",
@@ -41,7 +41,10 @@
       "layout": "l07",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s002_l07_base_desktop_v01.jpg",
+      "image": "s002_l07_base_desktop_v02.png",
+      "imageVariants": {
+        "mobileLandscape": "s002_l07_base_mobile_v01.png"
+      },
       "leftPanelWidth": 422,
       "rightPanelWidth": 850,
       "choices": [
@@ -79,7 +82,10 @@
       "layout": "l02",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s003_l02_base_desktop_v01.png",
+      "image": "s004_l02_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s004_l02_male_mobile_v01.png"
+      },
       "leftPanelWidth": 938,
       "rightPanelWidth": 334,
       "choices": [
@@ -112,7 +118,10 @@
       "layout": "l03",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s003_l02_base_desktop_v01.png",
+      "image": "s004_l02_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s004_l02_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
@@ -145,7 +154,10 @@
       "layout": "l05",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s003_l02_base_desktop_v01.png",
+      "image": "s004_l02_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s004_l02_male_mobile_v01.png"
+      },
       "leftPanelWidth": 426,
       "rightPanelWidth": 854,
       "choices": [
@@ -178,7 +190,10 @@
       "layout": "l03",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s003_l02_base_desktop_v01.png",
+      "image": "s004_l02_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s004_l02_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
@@ -211,7 +226,10 @@
       "layout": "l03",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s003_l02_base_desktop_v01.png",
+      "image": "s004_l02_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s004_l02_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
@@ -2201,6 +2219,281 @@
       "backScreenId": "s053"
     },
     {
+      "id": "s055",
+      "type": "story",
+      "layout": "l03",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s055",
+          "label": "Dalej",
+          "nextScreenId": "s056"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s054"
+    },
+    {
+      "id": "s056",
+      "type": "story",
+      "layout": "l018",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 1280,
+      "rightPanelWidth": 0,
+      "choicePresentation": "image-overlay",
+      "choiceOverlays": [
+        {
+          "choiceId": "choose-option-1",
+          "x": 0,
+          "y": 420,
+          "width": 427,
+          "height": 205,
+          "buttonX": 0,
+          "buttonY": 0
+        },
+        {
+          "choiceId": "choose-option-2",
+          "x": 427,
+          "y": 420,
+          "width": 426,
+          "height": 205,
+          "buttonX": 0,
+          "buttonY": 0
+        },
+        {
+          "choiceId": "choose-option-3",
+          "x": 853,
+          "y": 420,
+          "width": 427,
+          "height": 205,
+          "buttonX": 0,
+          "buttonY": 0
+        }
+      ],
+      "choices": [
+        {
+          "id": "choose-option-1",
+          "label": "Wybór 1",
+          "nextScreenId": "s057"
+        },
+        {
+          "id": "choose-option-2",
+          "label": "Wybór 2",
+          "nextScreenId": "s058"
+        },
+        {
+          "id": "choose-option-3",
+          "label": "Wybór 3",
+          "nextScreenId": "s059"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s055"
+    },
+    {
+      "id": "s057",
+      "type": "story",
+      "layout": "l016",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choicePresentation": "image-overlay",
+      "choiceOverlays": [
+        {
+          "choiceId": "choice-1-from-s057",
+          "x": 0,
+          "y": 405,
+          "width": 640,
+          "height": 220,
+          "buttonX": 0,
+          "buttonY": 0
+        },
+        {
+          "choiceId": "choice-2-from-s057",
+          "x": 640,
+          "y": 405,
+          "width": 640,
+          "height": 220,
+          "buttonX": 0,
+          "buttonY": 0
+        }
+      ],
+      "choices": [
+        {
+          "id": "choice-1-from-s057",
+          "label": "Wybór 1",
+          "nextScreenId": "s058"
+        },
+        {
+          "id": "choice-2-from-s057",
+          "label": "Wybór 2",
+          "nextScreenId": "s059"
+        }
+      ],
+      "infoPopup": {
+        "target": "chessboard",
+        "title": "Szachownica",
+        "body": "Szach to sytuacja, w której król jest zagrożony zbiciem w następnym posunięciu. Szach mat to szach, z którego król nie ma ucieczki. Skoczek porusza się po literze L."
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 405
+      },
+      "popupPosition": {
+        "x": 120,
+        "y": 118
+      },
+      "backScreenId": "s056"
+    },
+    {
+      "id": "s058",
+      "type": "story",
+      "layout": "l02",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s058",
+          "label": "Wybór 1",
+          "nextScreenId": "s060"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "achievementOnEnter": {
+        "id": "grandmaster-title",
+        "label": "Tytuł arcymistrzowski",
+        "icon": "\u265E"
+      },
+      "resetHistoryOnEnter": true,
+      "backScreenId": "s056"
+    },
+    {
+      "id": "s059",
+      "type": "story",
+      "layout": "l04",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s059",
+          "label": "Wybór 1",
+          "nextScreenId": "s060"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s056"
+    },
+    {
+      "id": "s060",
+      "type": "story",
+      "layout": "l02",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s060",
+          "label": "Ruszamy dalej!",
+          "nextScreenId": "s068"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "itemOnEnter": {
+        "id": "legendary-yarn",
+        "label": "Legendarny Kłębek Włóczki",
+        "icon": "\uD83E\uDDF6"
+      },
+      "backScreenId": "s058"
+    },
+    {
       "id": "s061",
       "type": "story",
       "layout": "l06",
@@ -2239,12 +2532,1716 @@
       "backScreenId": "s054"
     },
     {
+      "id": "s062",
+      "type": "story",
+      "layout": "l016",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choicePresentation": "image-overlay",
+      "choiceOverlays": [
+        {
+          "choiceId": "choice-1-from-s062",
+          "x": 0,
+          "y": 405,
+          "width": 640,
+          "height": 220,
+          "buttonX": 0,
+          "buttonY": 0
+        },
+        {
+          "choiceId": "choice-2-from-s062",
+          "x": 640,
+          "y": 405,
+          "width": 640,
+          "height": 220,
+          "buttonX": 0,
+          "buttonY": 0
+        }
+      ],
+      "choices": [
+        {
+          "id": "choice-1-from-s062",
+          "label": "Graj na Baśkę",
+          "nextScreenId": "s065"
+        },
+        {
+          "id": "choice-2-from-s062",
+          "label": "Graj na Kubę",
+          "nextScreenId": "s066"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s061"
+    },
+    {
+      "id": "s063",
+      "type": "story",
+      "layout": "l05",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 426,
+      "rightPanelWidth": 854,
+      "choices": [
+        {
+          "id": "continue-from-s063",
+          "label": "Dalej",
+          "nextScreenId": "s064"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s061"
+    },
+    {
+      "id": "s064",
+      "type": "story",
+      "layout": "l03",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s064",
+          "label": "Dalej",
+          "nextScreenId": "s056"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s063"
+    },
+    {
+      "id": "s065",
+      "type": "story",
+      "layout": "l05",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 426,
+      "rightPanelWidth": 854,
+      "choices": [
+        {
+          "id": "victory-from-s065",
+          "label": "Zwycięstwo!",
+          "nextScreenId": "s067"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "achievementOnEnter": {
+        "id": "football-masters",
+        "label": "Mistrzowie piłki",
+        "icon": "\u26BD"
+      },
+      "resetHistoryOnEnter": true,
+      "backScreenId": "s062"
+    },
+    {
+      "id": "s066",
+      "type": "story",
+      "layout": "l05",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 426,
+      "rightPanelWidth": 854,
+      "choices": [
+        {
+          "id": "victory-from-s066",
+          "label": "Zwycięstwo!",
+          "nextScreenId": "s067"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "achievementOnEnter": {
+        "id": "football-masters",
+        "label": "Mistrzowie piłki",
+        "icon": "\u26BD"
+      },
+      "backScreenId": "s062"
+    },
+    {
+      "id": "s067",
+      "type": "story",
+      "layout": "l02",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s067",
+          "label": "Ruszamy dalej!",
+          "nextScreenId": "s068"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "itemOnEnter": {
+        "id": "fan-finger",
+        "label": "Cudowny Paluch Kibica",
+        "icon": "\uD83D\uDC46"
+      },
+      "backScreenId": "s066"
+    },
+    {
+      "id": "s068",
+      "type": "story",
+      "layout": "l03",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s068",
+          "label": "Dalej",
+          "nextScreenId": "s069"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s067"
+    },
+    {
+      "id": "s069",
+      "type": "story",
+      "layout": "l02",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s069",
+          "label": "Dalej",
+          "nextScreenId": "s070"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s068"
+    },
+    {
+      "id": "s070",
+      "type": "story",
+      "layout": "l018",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 1280,
+      "rightPanelWidth": 0,
+      "choicePresentation": "image-overlay",
+      "choiceOverlays": [
+        {
+          "choiceId": "help-dig",
+          "x": 0,
+          "y": 420,
+          "width": 427,
+          "height": 205,
+          "buttonX": 0,
+          "buttonY": 0
+        },
+        {
+          "choiceId": "light-for-miners",
+          "x": 427,
+          "y": 420,
+          "width": 426,
+          "height": 205,
+          "buttonX": 0,
+          "buttonY": 0
+        },
+        {
+          "choiceId": "lead-school-light",
+          "x": 853,
+          "y": 420,
+          "width": 427,
+          "height": 205,
+          "buttonX": 0,
+          "buttonY": 0
+        }
+      ],
+      "choices": [
+        {
+          "id": "help-dig",
+          "label": "Pomóżcie kopać",
+          "nextScreenId": "s071"
+        },
+        {
+          "id": "light-for-miners",
+          "label": "Przyświećcie górnikom",
+          "nextScreenId": "s072"
+        },
+        {
+          "id": "lead-school-light",
+          "label": "Poprowadźcie światło ze szkoły",
+          "nextScreenId": "s073"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s069"
+    },
+    {
+      "id": "s071",
+      "type": "story",
+      "layout": "l02",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s071",
+          "label": "Dalej",
+          "nextScreenId": "s074"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "achievementOnEnter": {
+        "id": "helpful-pack",
+        "label": "Pomocna paczka",
+        "icon": "\uD83E\uDDB8"
+      },
+      "backScreenId": "s070"
+    },
+    {
+      "id": "s072",
+      "type": "story",
+      "layout": "l02",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s072",
+          "label": "Dalej",
+          "nextScreenId": "s074"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "achievementOnEnter": {
+        "id": "helpful-pack",
+        "label": "Pomocna paczka",
+        "icon": "\uD83E\uDDB8"
+      },
+      "backScreenId": "s070"
+    },
+    {
+      "id": "s073",
+      "type": "story",
+      "layout": "l02",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s073",
+          "label": "Dalej",
+          "nextScreenId": "s074"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "achievementOnEnter": {
+        "id": "helpful-pack",
+        "label": "Pomocna paczka",
+        "icon": "\uD83E\uDDB8"
+      },
+      "backScreenId": "s070"
+    },
+    {
+      "id": "s074",
+      "type": "story",
+      "layout": "l03",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "use-fan-finger",
+          "label": "Paluch Kibica",
+          "nextScreenId": "s075",
+          "requiredItemId": "fan-finger"
+        },
+        {
+          "id": "use-legendary-yarn",
+          "label": "Kłębek Włóczki",
+          "nextScreenId": "s076",
+          "requiredItemId": "legendary-yarn"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s073"
+    },
+    {
+      "id": "s075",
+      "type": "story",
+      "layout": "l03",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "choice-1-from-s075",
+          "label": "Wybór nr 1",
+          "nextScreenId": "s077"
+        },
+        {
+          "id": "choice-2-from-s075",
+          "label": "Wybór 2",
+          "nextScreenId": "s078"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s074"
+    },
+    {
+      "id": "s076",
+      "type": "story",
+      "layout": "l03",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "choice-1-from-s076",
+          "label": "Wybór nr 1",
+          "nextScreenId": "s077"
+        },
+        {
+          "id": "choice-2-from-s076",
+          "label": "Wybór 2",
+          "nextScreenId": "s078"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s074"
+    },
+    {
+      "id": "s077",
+      "type": "story",
+      "layout": "l03",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "choice-1-from-s077",
+          "label": "Wybór 1",
+          "nextScreenId": "s079"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s076"
+    },
+    {
+      "id": "s078",
+      "type": "story",
+      "layout": "l03",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "choice-1-from-s078",
+          "label": "Wybór 1",
+          "nextScreenId": "s079"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s076"
+    },
+    {
+      "id": "s079",
+      "type": "story",
+      "layout": "l01",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s079",
+          "label": "Dalej",
+          "nextScreenId": "s080"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "itemOnEnter": {
+        "id": "universal-key",
+        "label": "Klucz Uniwersalny",
+        "icon": "\ud83d\udd11"
+      },
+      "backScreenId": "s078"
+    },
+    {
+      "id": "s080",
+      "type": "story",
+      "layout": "l03",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s080",
+          "label": "Dalej",
+          "nextScreenId": "s081"
+        }
+      ],
+      "infoPopup": {
+        "target": "szafki",
+        "title": "Numery szafek",
+        "body": "Szafki sa oznaczone w dziwnej kolejnosci: Numer 0, Numer ?, Numer 010101, Numer pierwiastek z 3, Numer sin i Numer LXIX. Warto odczytac wszystkie, bo moze to byc wskazowka."
+      },
+      "hotspot": {
+        "x": 640,
+        "y": 0,
+        "width": 560,
+        "height": 350
+      },
+      "popupPosition": {
+        "x": 760,
+        "y": 118
+      },
+      "backScreenId": "s079"
+    },
+    {
+      "id": "s081",
+      "type": "story",
+      "layout": "l016",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choicePresentation": "image-overlay",
+      "choiceOverlays": [
+        {
+          "choiceId": "choice-1-football-route",
+          "x": 0,
+          "y": 405,
+          "width": 640,
+          "height": 220,
+          "buttonX": 0,
+          "buttonY": 0
+        },
+        {
+          "choiceId": "choice-1-chess-route",
+          "x": 0,
+          "y": 405,
+          "width": 640,
+          "height": 220,
+          "buttonX": 0,
+          "buttonY": 0
+        },
+        {
+          "choiceId": "choice-2-from-s081",
+          "x": 640,
+          "y": 405,
+          "width": 640,
+          "height": 220,
+          "buttonX": 0,
+          "buttonY": 0
+        }
+      ],
+      "choices": [
+        {
+          "id": "choice-1-football-route",
+          "label": "Wybór 1",
+          "nextScreenId": "s123",
+          "requiredAchievementId": "football-masters"
+        },
+        {
+          "id": "choice-1-chess-route",
+          "label": "Wybór 1",
+          "nextScreenId": "s124",
+          "requiredAchievementId": "grandmaster-title"
+        },
+        {
+          "id": "choice-2-from-s081",
+          "label": "Wybór 2",
+          "nextScreenId": "s084"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s080"
+    },
+    {
+      "id": "s123",
+      "type": "story",
+      "layout": "l01",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s123",
+          "label": "Dalej",
+          "nextScreenId": "s082"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s081"
+    },
+    {
+      "id": "s082",
+      "type": "story",
+      "layout": "l02",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s003_l01_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s003_l01_male_mobile_v01.png"
+      },
+      "leftPanelWidth": 334,
+      "rightPanelWidth": 938,
+      "choices": [
+        {
+          "id": "continue-from-s082",
+          "label": "Dalej",
+          "nextScreenId": "s085"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "achievementOnEnter": {
+        "id": "school-match",
+        "label": "Mecz o szkołę",
+        "icon": "\u26BD",
+        "description": "Pokonaliście Chochliki w piłkę nożną."
+      },
+      "backScreenId": "s123"
+    },
+    {
+      "id": "s124",
+      "type": "story",
+      "layout": "l01",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s124",
+          "label": "Dalej",
+          "nextScreenId": "s083"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s081"
+    },
+    {
+      "id": "s083",
+      "type": "story",
+      "layout": "l02",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s003_l01_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s003_l01_male_mobile_v01.png"
+      },
+      "leftPanelWidth": 334,
+      "rightPanelWidth": 938,
+      "choices": [
+        {
+          "id": "continue-from-s083",
+          "label": "Dalej",
+          "nextScreenId": "s085"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "achievementOnEnter": {
+        "id": "checkmate",
+        "label": "Szach mat",
+        "icon": "\u265E",
+        "description": "Pokonałeś/aś chochliki w szachy."
+      },
+      "backScreenId": "s124"
+    },
+    {
+      "id": "s084",
+      "type": "story",
+      "layout": "l03",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s084",
+          "label": "Dalej",
+          "nextScreenId": "s125"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s081"
+    },
+    {
+      "id": "s125",
+      "type": "story",
+      "layout": "l01",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s125",
+          "label": "Dalej",
+          "nextScreenId": "s085"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "achievementOnEnter": {
+        "id": "chochlik-friendship",
+        "label": "Przyjaźń z chochlikami",
+        "icon": "\uD83E\uDD1D",
+        "description": "Rozmowa z chochlikami okazała się najlepszym wyjściem."
+      },
+      "backScreenId": "s084"
+    },
+    {
+      "id": "s085",
+      "type": "story",
+      "layout": "l03",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s085",
+          "label": "Dalej",
+          "nextScreenId": "s051"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "itemLostOnEnter": {
+        "id": "destiny-notebook",
+        "label": "Zeszyt Przeznaczenia",
+        "icon": "\ud83d\udcd4",
+        "description": "Artefakt zniknie z twojego plecaka po zapisaniu tej zmiany."
+      },
+      "backScreenId": "s125"
+    },
+    {
+      "id": "s086",
+      "type": "story",
+      "layout": "l03",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "enter-school",
+          "label": "Wejdź do szkoły",
+          "nextScreenId": "s087"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s016"
+    },
+    {
+      "id": "s087",
+      "type": "story",
+      "layout": "l01",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "continue-from-s087",
+          "label": "Dalej",
+          "nextScreenId": "s088"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s086"
+    },
+    {
+      "id": "s088",
+      "type": "story",
+      "layout": "l017",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choicePresentation": "image-overlay",
+      "choiceOverlays": [
+        {
+          "choiceId": "listen-to-greenery",
+          "x": 640,
+          "y": 0,
+          "width": 640,
+          "height": 312,
+          "buttonX": 0,
+          "buttonY": 0
+        },
+        {
+          "choiceId": "read-school-map",
+          "x": 640,
+          "y": 312,
+          "width": 640,
+          "height": 313,
+          "buttonX": 0,
+          "buttonY": 0
+        }
+      ],
+      "choices": [
+        {
+          "id": "listen-to-greenery",
+          "label": "Wsłuchajcie sie w zieleń",
+          "nextScreenId": "s089"
+        },
+        {
+          "id": "read-school-map",
+          "label": "Odczytajcie plan szkoły",
+          "nextScreenId": "s090"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s087"
+    },
+    {
+      "id": "s089",
+      "type": "story",
+      "layout": "l16",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s009_l16_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choicePresentation": "image-overlay",
+      "choiceOverlays": [
+        {
+          "choiceId": "go-left",
+          "x": 34,
+          "y": 313,
+          "width": 606,
+          "height": 312,
+          "buttonX": 150,
+          "buttonY": 28
+        },
+        {
+          "choiceId": "go-right",
+          "x": 640,
+          "y": 313,
+          "width": 606,
+          "height": 312,
+          "buttonX": 150,
+          "buttonY": 28
+        }
+      ],
+      "choices": [
+        {
+          "id": "go-left",
+          "label": "Idźcie w lewo",
+          "nextScreenId": "s091"
+        },
+        {
+          "id": "go-right",
+          "label": "Idźcie w prawo",
+          "nextScreenId": "s092"
+        }
+      ],
+      "infoPopup": {
+        "target": "Paprotka",
+        "title": "Pani Paprotka",
+        "body": "No cześć! Jestem Pani Paprotka! Dla Przyjaciół Paprotka. Papi też się nada. Chcecie znaleźć Salę od Przyrody?! To proste, musicie iść o tam, w korytarz po mojej lewej, czyli waszej prawej!"
+      },
+      "hotspot": {
+        "x": 905,
+        "y": 96,
+        "width": 150,
+        "height": 190
+      },
+      "popupPosition": {
+        "x": 820,
+        "y": 94
+      },
+      "backScreenId": "s088"
+    },
+    {
+      "id": "s090",
+      "type": "story",
+      "layout": "l018",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 1280,
+      "rightPanelWidth": 0,
+      "choicePresentation": "image-overlay",
+      "choiceOverlays": [
+        {
+          "choiceId": "go-straight-left-right-right",
+          "x": 0,
+          "y": 420,
+          "width": 427,
+          "height": 205,
+          "buttonX": 0,
+          "buttonY": 0
+        },
+        {
+          "choiceId": "go-straight-right-right-right",
+          "x": 427,
+          "y": 420,
+          "width": 426,
+          "height": 205,
+          "buttonX": 0,
+          "buttonY": 0
+        },
+        {
+          "choiceId": "go-straight-right-left-left",
+          "x": 853,
+          "y": 420,
+          "width": 427,
+          "height": 205,
+          "buttonX": 0,
+          "buttonY": 0
+        }
+      ],
+      "choices": [
+        {
+          "id": "go-straight-left-right-right",
+          "label": "Idźcie prosto, w lewo, w prawo, w prawo",
+          "nextScreenId": "s095"
+        },
+        {
+          "id": "go-straight-right-right-right",
+          "label": "Idźcie prosto, w prawo, w prawo, w prawo",
+          "nextScreenId": "s096"
+        },
+        {
+          "id": "go-straight-right-left-left",
+          "label": "Idźcie prosto, w prawo, w lewo, w lewo",
+          "nextScreenId": "s097"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s088"
+    },
+    {
+      "id": "s091",
+      "type": "story",
+      "layout": "l16",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s009_l16_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choicePresentation": "image-overlay",
+      "choiceOverlays": [
+        {
+          "choiceId": "go-left-from-s091",
+          "x": 34,
+          "y": 313,
+          "width": 606,
+          "height": 312,
+          "buttonX": 150,
+          "buttonY": 28
+        },
+        {
+          "choiceId": "go-straight-from-s091",
+          "x": 640,
+          "y": 313,
+          "width": 606,
+          "height": 312,
+          "buttonX": 170,
+          "buttonY": 28
+        }
+      ],
+      "choices": [
+        {
+          "id": "go-left-from-s091",
+          "label": "Idźcie w lewo",
+          "nextScreenId": "s093"
+        },
+        {
+          "id": "go-straight-from-s091",
+          "label": "Prosto",
+          "nextScreenId": "s094"
+        }
+      ],
+      "infoPopup": {
+        "target": "bluszcz",
+        "title": "Matylda",
+        "body": "Dzień dobry, dzieciom. Nazywam się Matylda i tak sobie tu wiszę od lat. Pani Woźna? Tak, znam. Miła, sroga. Lubię ją. Misja? Zeszyt Przeznaczenia? Ojej. Musicie iść tym korytarzem prosto."
+      },
+      "hotspot": {
+        "x": 905,
+        "y": 98,
+        "width": 172,
+        "height": 208
+      },
+      "popupPosition": {
+        "x": 812,
+        "y": 88
+      },
+      "achievementOnEnter": {
+        "id": "green-listened",
+        "label": "Zieleń wysłuchana",
+        "icon": "\uD83C\uDF3F",
+        "description": "Porozmawialiście ze szkolnymi roślinami."
+      },
+      "backScreenId": "s089"
+    },
+    {
+      "id": "s095",
+      "type": "story",
+      "layout": "l05",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s010_l05_base_desktop_v01.png",
+      "leftPanelWidth": 426,
+      "rightPanelWidth": 854,
+      "choices": [
+        {
+          "id": "return-from-s095",
+          "label": "Zawróćcie",
+          "nextScreenId": "s090"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s090"
+    },
+    {
+      "id": "s093",
+      "type": "story",
+      "layout": "l02",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 854,
+      "rightPanelWidth": 426,
+      "choices": [
+        {
+          "id": "go-back-from-s093",
+          "label": "Cofnijcie się",
+          "nextScreenId": "s091"
+        }
+      ],
+      "infoPopup": {
+        "target": "uczen-drzewo",
+        "title": "Jarek",
+        "body": "Siemka! Wy z podstawówki? Jestem Jarek, aktor! Gram krzaczek w sztuce Pan Kleks w Kosmosie. Tylko im nie mówcie, że w kosmosie nie ma krzaków. Do Sali od Przyrody? Źle skręciliście. Musicie się cofnąć."
+      },
+      "hotspot": {
+        "x": 600,
+        "y": 220,
+        "width": 170,
+        "height": 250
+      },
+      "popupPosition": {
+        "x": 760,
+        "y": 128
+      },
+      "backScreenId": "s091"
+    },
+    {
+      "id": "s094",
+      "type": "story",
+      "layout": "l05",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s010_l05_base_desktop_v01.png",
+      "leftPanelWidth": 426,
+      "rightPanelWidth": 854,
+      "choices": [
+        {
+          "id": "enter-from-s094",
+          "label": "Do środka",
+          "nextScreenId": "s098"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s091"
+    },
+    {
+      "id": "s098",
+      "type": "story",
+      "layout": "l05",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s010_l05_base_desktop_v01.png",
+      "leftPanelWidth": 426,
+      "rightPanelWidth": 854,
+      "choices": [
+        {
+          "id": "continue-from-s098",
+          "label": "Dalej",
+          "nextScreenId": "s099"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s094"
+    },
+    {
+      "id": "s096",
+      "type": "story",
+      "layout": "l05",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s010_l05_base_desktop_v01.png",
+      "leftPanelWidth": 426,
+      "rightPanelWidth": 854,
+      "choices": [
+        {
+          "id": "return-from-s096",
+          "label": "Zawróćcie",
+          "nextScreenId": "s090"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s090"
+    },
+    {
+      "id": "s097",
+      "type": "story",
+      "layout": "l05",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s010_l05_base_desktop_v01.png",
+      "leftPanelWidth": 426,
+      "rightPanelWidth": 854,
+      "choices": [
+        {
+          "id": "continue-from-s097",
+          "label": "Dalej",
+          "nextScreenId": "s094"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "achievementOnEnter": {
+        "id": "maze-triumph",
+        "label": "Triumf w labiryncie",
+        "icon": "\uD83D\uDDD2",
+        "description": "Rozszyfrowaliście plan szkoły."
+      },
+      "backScreenId": "s090"
+    },
+    {
+      "id": "s092",
+      "type": "story",
+      "layout": "l02",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 854,
+      "rightPanelWidth": 426,
+      "choices": [
+        {
+          "id": "go-back-from-s092",
+          "label": "Cofnijcie się",
+          "nextScreenId": "s089"
+        }
+      ],
+      "infoPopup": {
+        "target": "kaktus",
+        "title": "Karol Kaktusiński",
+        "body": "Kogo witam kogo goszczę! Cześć dzieciaki! Nie przejmujcie się tymi komputerowymi wariatami! Jestem Karol Kaktusiński. 30 lat rosnę już w tej szkole. Sala do Plastyki? Źle poszliście, musicie zawrócić."
+      },
+      "hotspot": {
+        "x": 960,
+        "y": 360,
+        "width": 120,
+        "height": 150
+      },
+      "popupPosition": {
+        "x": 792,
+        "y": 178
+      },
+      "backScreenId": "s089"
+    },
+    {
+      "id": "s051",
+      "type": "story",
+      "layout": "l01",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [
+        {
+          "id": "finish-from-s051",
+          "label": "Koniec",
+          "nextScreenId": "ending-session-summary"
+        }
+      ],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s085"
+    },
+    {
+      "id": "ending-session-summary",
+      "type": "story",
+      "layout": "l01",
+      "title": "PRZYGODNIK",
+      "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
+      "image": "s011_l03_base_desktop_v01.png",
+      "leftPanelWidth": 640,
+      "rightPanelWidth": 640,
+      "choices": [],
+      "infoPopup": {
+        "target": "",
+        "title": "",
+        "body": ""
+      },
+      "hotspot": {
+        "x": 0,
+        "y": 0,
+        "width": 0,
+        "height": 0
+      },
+      "popupPosition": {
+        "x": 88,
+        "y": 392
+      },
+      "backScreenId": "s051"
+    },
+    {
       "id": "s004",
       "type": "story",
       "layout": "l02",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s004_l02_base_desktop_v01.png",
+      "image": "s003_l01_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s003_l01_male_mobile_v01.png"
+      },
       "leftPanelWidth": 334,
       "rightPanelWidth": 938,
       "choices": [

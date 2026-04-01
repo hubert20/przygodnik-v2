@@ -2,6 +2,9 @@ export interface DemoChoice {
   id: string;
   label: string;
   nextScreenId: string | null;
+  requiredItemId?: string;
+  requiredAchievementId?: string;
+  itemLostOnSelect?: InventoryItem;
 }
 
 export interface DemoPopup {
@@ -50,6 +53,9 @@ export interface InventoryItem {
 export interface ScreenImageVariants {
   male?: string;
   female?: string;
+  mobileLandscape?: string;
+  mobileLandscapeMale?: string;
+  mobileLandscapeFemale?: string;
 }
 
 export interface BaseScreen {
@@ -96,6 +102,7 @@ export interface StoryScreen extends BaseScreen {
   itemOnEnter?: InventoryItem;
   itemLostOnEnter?: InventoryItem;
   achievementOnEnter?: ScreenAchievement;
+  resetHistoryOnEnter?: boolean;
   backScreenId: string;
 }
 
@@ -104,4 +111,16 @@ export type DemoScreen = WelcomeScreen | IntroScreen | StoryScreen;
 export interface DemoFlow {
   firstScreenId: string;
   screens: DemoScreen[];
+}
+
+export interface GameSessionSnapshot {
+  version: number;
+  currentScreenId: string;
+  navigationHistory: string[];
+  playerName: string;
+  playerGender: string;
+  collectedItems: InventoryItem[];
+  unlockedAchievements: ScreenAchievement[];
+  unreadAchievementsCount: number;
+  unreadInventoryCount: number;
 }

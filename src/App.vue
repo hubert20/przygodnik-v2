@@ -3,6 +3,8 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import type { CSSProperties } from "vue";
 
 import { useGameSession } from "./composables/useGameSession";
+import { loadGameSessionSnapshot } from "./services/gameSessionStorage";
+import type { GameSessionSnapshot } from "./types/gameFlow";
 import type { ChoiceOverlay, StoryScreen } from "./types/gameFlow";
 
 const {
@@ -27,6 +29,7 @@ const {
   playerGender,
   playerName,
   remainingLockedAchievementsCount,
+  resetSession,
   saveAchievementToast,
   saveItemLostToast,
   saveItemToast,
@@ -39,6 +42,8 @@ const {
   unreadAchievementsCount,
   unreadInventoryCount,
   unlockedAchievements,
+  visibleChoiceOverlays,
+  visibleStoryChoices,
   usesImageOverlayChoices,
   welcomeScreen
 } = useGameSession();
@@ -46,10 +51,26 @@ const {
 const isMenuOpen = ref(false);
 const storyBaseWidth = 1280;
 const storyBaseHeight = 660;
+const endingSummaryScreenId = "ending-session-summary";
 const viewportWidth = ref(typeof window === "undefined" ? 1440 : window.innerWidth);
 const viewportHeight = ref(typeof window === "undefined" ? 900 : window.innerHeight);
+const endingSessionSnapshot = ref<GameSessionSnapshot | null>(null);
 
 const menuItems = ["Start", "O grze", "Jak grac", "Kontakt"];
+const endingCreditsItems = ["Autorzy", "PM-owie", "Programiści", "Konsultanci"];
+const endingLinksItems = [
+  "Link do poprzedniej części",
+  "Link do strony projektu",
+  "Link do materiałów dodatkowych"
+];
+const endingPartnerItems = ["Sponsorzy", "Fundacja", "Partnerzy projektu"];
+const isCompactViewport = computed(() => viewportWidth.value <= 1024);
+const isMobileLandscapeViewport = computed(
+  () => isCompactViewport.value && viewportWidth.value > viewportHeight.value
+);
+const isMobilePortraitViewport = computed(
+  () => isCompactViewport.value && viewportHeight.value >= viewportWidth.value
+);
 const storyScale = computed(() => {
   const horizontalInset = viewportWidth.value <= 956 ? 12 : 32;
   const verticalInset = viewportHeight.value <= 500 ? 12 : 32;
@@ -73,6 +94,18 @@ const usesCenteredOverlayLayout = computed(() => {
 const backpackImage = computed(() => resolveImage("plecak.png"));
 const isInitialLoaderVisible = ref(true);
 const hasInitialScreenLoaded = ref(false);
+const isEndingSummaryScreen = computed(() => storyScreen.value?.id === endingSummaryScreenId);
+const visibleCollectedItems = computed(() => collectedItems.value.filter((item) => !!item.icon));
+const visibleUnlockedAchievements = computed(() =>
+  unlockedAchievements.value.filter((achievement) => !!achievement.icon)
+);
+const summaryPlayerName = computed(() => playerName.value.trim() || "Nie podano");
+const summaryPlayerGenderLabel = computed(() =>
+  playerGender.value === "female" ? "Dziewczynka" : "Chłopiec"
+);
+const summaryStoredScreenId = computed(
+  () => endingSessionSnapshot.value?.currentScreenId ?? currentScreen.value.id
+);
 
 function resolveImage(imageName: string): string {
   return `${import.meta.env.BASE_URL}images/${imageName}`;
@@ -80,6 +113,14 @@ function resolveImage(imageName: string): string {
 
 function getStoryImageName(screen: StoryScreen): string {
   const variant = screen.imageVariants?.[playerGender.value as "male" | "female"];
+  const mobileLandscapeVariant =
+    playerGender.value === "female"
+      ? screen.imageVariants?.mobileLandscapeFemale
+      : screen.imageVariants?.mobileLandscapeMale;
+
+  if (isMobileLandscapeViewport.value) {
+    return mobileLandscapeVariant ?? screen.imageVariants?.mobileLandscape ?? variant ?? screen.image;
+  }
 
   return variant ?? screen.image;
 }
@@ -98,6 +139,10 @@ function getCurrentScreenImageName(): string | null {
   }
 
   return null;
+}
+
+function refreshEndingSessionSnapshot(): void {
+  endingSessionSnapshot.value = loadGameSessionSnapshot();
 }
 
 async function preloadImage(src: string): Promise<void> {
@@ -149,6 +194,15 @@ function handleBack(): void {
   goBack();
 }
 
+function handleRestartGame(): void {
+  isMenuOpen.value = false;
+  resetSession();
+
+  if (typeof window !== "undefined") {
+    window.location.reload();
+  }
+}
+
 onMounted(() => {
   updateViewport();
   window.addEventListener("resize", updateViewport);
@@ -161,6 +215,10 @@ onBeforeUnmount(() => {
 watch(
   () => currentScreen.value.id,
   async () => {
+    if (isEndingSummaryScreen.value) {
+      refreshEndingSessionSnapshot();
+    }
+
     if (hasInitialScreenLoaded.value) {
       return;
     }
@@ -191,6 +249,13 @@ watch(
       </div>
     </div>
 
+    <div v-if="isMobilePortraitViewport" class="orientation-overlay" role="dialog" aria-modal="true">
+      <div class="orientation-overlay-card">
+        <strong>Obróć telefon poziomo</strong>
+        <p>Gra najlepiej działa w widoku landscape na telefonie albo na komputerze.</p>
+      </div>
+    </div>
+
     <button class="menu-toggle page-menu-toggle" @click="isMenuOpen = !isMenuOpen" aria-label="Menu">
       <span></span>
       <span></span>
@@ -199,6 +264,9 @@ watch(
 
     <aside class="side-menu" :class="{ open: isMenuOpen }">
       <a v-for="item in menuItems" :key="item" href="#">{{ item }}</a>
+      <button class="side-menu-action restart-action" type="button" @click="handleRestartGame">
+        Restart gry
+      </button>
     </aside>
 
     <section class="game-frame" :class="{ 'story-frame': !!storyScreen }">
@@ -218,7 +286,7 @@ watch(
             alt="Ekran powitalny Przygodnika"
           />
           <div class="welcome-copy">
-            <h2>{{ welcomeScreen.heading }}</h2>
+            <h2 v-html="welcomeScreen.heading"></h2>
             <p>{{ welcomeScreen.description }}</p>
           </div>
         </div>
@@ -282,13 +350,133 @@ watch(
           :class="{ 'overlay-choice-scene': usesImageOverlayChoices }"
           :style="storyWrapperStyle"
         >
+          <div v-if="isEndingSummaryScreen" class="ending-summary-scene">
+            <div class="ending-summary-card">
+              <h2>Podsumowanie sesji</h2>
+              <p>Na razie to roboczy ekran końcowy. Później podmienimy go pod docelowy layout.</p>
+
+              <div class="ending-summary-grid">
+                <section class="ending-summary-panel">
+                  <h3>Gracz</h3>
+                  <dl class="ending-summary-list">
+                    <div>
+                      <dt>Imię</dt>
+                      <dd>{{ summaryPlayerName }}</dd>
+                    </div>
+                    <div>
+                      <dt>Postać</dt>
+                      <dd>{{ summaryPlayerGenderLabel }}</dd>
+                    </div>
+                    <div>
+                      <dt>Aktualny ekran</dt>
+                      <dd>{{ currentScreen.id }}</dd>
+                    </div>
+                    <div>
+                      <dt>Zapisany ekran</dt>
+                      <dd>{{ summaryStoredScreenId }}</dd>
+                    </div>
+                  </dl>
+                </section>
+
+                <section class="ending-summary-panel">
+                  <h3>Postęp</h3>
+                  <dl class="ending-summary-list">
+                    <div>
+                      <dt>Odblokowane osiągnięcia</dt>
+                      <dd>{{ visibleUnlockedAchievements.length }} / {{ totalAchievementsCount }}</dd>
+                    </div>
+                    <div>
+                      <dt>Zablokowane osiągnięcia</dt>
+                      <dd>{{ remainingLockedAchievementsCount }}</dd>
+                    </div>
+                    <div>
+                      <dt>Artefakty w plecaku</dt>
+                      <dd>{{ visibleCollectedItems.length }}</dd>
+                    </div>
+                    <div>
+                      <dt>Nieprzeczytane powiadomienia</dt>
+                      <dd>Osiągnięcia: {{ unreadAchievementsCount }}, plecak: {{ unreadInventoryCount }}</dd>
+                    </div>
+                  </dl>
+                </section>
+
+                <section class="ending-summary-panel ending-summary-panel--wide ending-summary-panel--finale">
+                  <h3>Ekran ostatni</h3>
+                  <p class="ending-summary-finale-copy">
+                    Tutaj docelowo wstawimy końcowe creditsy, linki do wcześniejszych części oraz logotypy
+                    sponsorów i partnerów.
+                  </p>
+                  <div class="ending-summary-placeholder-grid">
+                    <article class="ending-summary-placeholder-card">
+                      <strong>Creditsy</strong>
+                      <ul>
+                        <li v-for="item in endingCreditsItems" :key="item">{{ item }}</li>
+                      </ul>
+                    </article>
+                    <article class="ending-summary-placeholder-card">
+                      <strong>Linki</strong>
+                      <ul>
+                        <li v-for="item in endingLinksItems" :key="item">{{ item }}</li>
+                      </ul>
+                    </article>
+                    <article class="ending-summary-placeholder-card">
+                      <strong>Logotypy</strong>
+                      <div class="ending-summary-logo-row">
+                        <span v-for="item in endingPartnerItems" :key="item" class="ending-summary-logo-chip">
+                          {{ item }}
+                        </span>
+                      </div>
+                    </article>
+                  </div>
+                </section>
+
+                <section class="ending-summary-panel">
+                  <h3>Osiągnięcia</h3>
+                  <ul v-if="visibleUnlockedAchievements.length" class="ending-summary-badges">
+                    <li v-for="achievement in visibleUnlockedAchievements" :key="achievement.id">
+                      <strong>{{ achievement.icon }} {{ achievement.label }}</strong>
+                      <span>{{ achievement.description || "Brak opisu." }}</span>
+                    </li>
+                  </ul>
+                  <p v-else class="ending-summary-empty">Brak odblokowanych osiągnięć.</p>
+                </section>
+
+                <section class="ending-summary-panel">
+                  <h3>Artefakty</h3>
+                  <ul v-if="visibleCollectedItems.length" class="ending-summary-badges">
+                    <li v-for="item in visibleCollectedItems" :key="item.id">
+                      <strong>{{ item.icon }} {{ item.label }}</strong>
+                      <span>{{ item.description || "Brak opisu." }}</span>
+                    </li>
+                  </ul>
+                  <p v-else class="ending-summary-empty">Brak artefaktów w plecaku.</p>
+                </section>
+
+                <section class="ending-summary-panel ending-summary-panel--wide">
+                  <h3>Zapis sesji</h3>
+                  <pre class="ending-summary-json">{{
+                    endingSessionSnapshot
+                      ? JSON.stringify(endingSessionSnapshot, null, 2)
+                      : "Brak danych zapisanych w localStorage."
+                  }}</pre>
+                </section>
+              </div>
+            </div>
+          </div>
+
           <img
+            v-else
             class="story-image"
             :src="resolveImage(getStoryImageName(storyScreen))"
             :alt="`Scena ${storyScreen.id}`"
           />
 
           <button
+            v-if="
+              storyScreen.hotspot.width > 0 &&
+              storyScreen.hotspot.height > 0 &&
+              (storyScreen.infoPopup.title || storyScreen.infoPopup.body)
+            "
             class="grzenia-hotspot"
             :style="{
               left: `${storyScreen.hotspot.x}px`,
@@ -297,11 +485,24 @@ watch(
               height: `${storyScreen.hotspot.height}px`
             }"
             @click="isGrzeniaPopupOpen = !isGrzeniaPopupOpen"
-            aria-label="Informacja o Grzeni"
+            :aria-label="
+              storyScreen.infoPopup.title
+                ? `Pokaż popup: ${storyScreen.infoPopup.title}`
+                : 'Pokaż popup'
+            "
+            :title="
+              storyScreen.infoPopup.title
+                ? `Kliknij, aby otworzyć popup: ${storyScreen.infoPopup.title}`
+                : 'Kliknij, aby otworzyć popup'
+            "
+            :aria-pressed="isGrzeniaPopupOpen"
           ></button>
 
           <div
-            v-if="isGrzeniaPopupOpen"
+            v-if="
+              isGrzeniaPopupOpen &&
+              (storyScreen.infoPopup.title || storyScreen.infoPopup.body)
+            "
             class="info-popup"
             :style="{
               left: `${storyScreen.popupPosition.x}px`,
@@ -381,12 +582,12 @@ watch(
 
           <div class="bottom-ui right">
             <button class="back-button" :disabled="!canGoBack" @click="handleBack">
-              &larr;
+              <span class="back-button-arrow" aria-hidden="true">&larr;</span>
               <span>Cofnij</span>
             </button>
             <template v-if="!usesImageOverlayChoices">
             <button
-              v-for="choice in storyScreen.choices"
+              v-for="choice in visibleStoryChoices"
               :key="choice.id"
               class="choice-button"
               :disabled="!hasScreen(choice.nextScreenId)"
@@ -398,16 +599,18 @@ watch(
           </div>
 
           <div
-            v-if="usesImageOverlayChoices && storyScreen.choiceOverlays"
+            v-if="usesImageOverlayChoices && visibleChoiceOverlays.length"
             class="choice-overlay-layer"
             :class="{ 'choice-overlay-layer--centered': usesCenteredOverlayLayout }"
           >
             <button
-              v-for="overlay in storyScreen.choiceOverlays"
+              v-for="overlay in visibleChoiceOverlays"
               :key="overlay.choiceId"
               class="overlay-choice-button"
               :class="{ 'overlay-choice-button--centered': usesCenteredOverlayLayout }"
               :style="getOverlayAreaStyle(overlay)"
+              :title="getOverlayChoice(overlay.choiceId)?.label ?? ''"
+              :aria-label="getOverlayChoice(overlay.choiceId)?.label ?? ''"
               :disabled="!hasScreen(getOverlayChoice(overlay.choiceId)?.nextScreenId ?? null)"
               @click="clickOverlayChoice(overlay.choiceId)"
             >
@@ -602,6 +805,40 @@ watch(
   }
 }
 
+.orientation-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(255, 252, 245, 0.96);
+}
+
+.orientation-overlay-card {
+  width: min(420px, calc(100vw - 40px));
+  padding: 28px 24px;
+  border: 3px solid #9ccf67;
+  border-radius: 24px;
+  background: #ffffff;
+  box-shadow: 0 16px 34px rgba(51, 79, 104, 0.2);
+  text-align: center;
+}
+
+.orientation-overlay-card strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #1d3b60;
+  font-size: 24px;
+}
+
+.orientation-overlay-card p {
+  margin: 0;
+  color: #5d6d7a;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
 .game-frame {
   position: relative;
   width: min(1280px, calc((100vh - 32px) * 16 / 9), calc(100vw - 32px));
@@ -704,6 +941,27 @@ watch(
   white-space: nowrap;
 }
 
+.side-menu-action {
+  display: block;
+  width: calc(100% - 24px);
+  margin: 8px 12px 12px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 12px;
+  background: #eef3f8;
+  color: #35506e;
+  font: inherit;
+  font-weight: 700;
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.restart-action {
+  background: #fbe4e6;
+  color: #8b3140;
+}
+
 .framed-screen {
   height: calc(100% - 94px);
   padding: 18px 28px 24px;
@@ -753,11 +1011,17 @@ watch(
   font-size: 34px;
 }
 
+.welcome-copy h2,
+.intro-form h2 {
+font-size: 28px;
+}
+
 .welcome-copy p {
   margin: 0;
   color: #2f4a65;
-  line-height: 1.6;
-  font-size: 18px;
+  line-height: 1.5;
+  font-size: 17px;
+  white-space: pre-line;
 }
 
 .intro-form {
@@ -848,24 +1112,284 @@ watch(
   border-radius: 6px;
 }
 
+.ending-summary-scene {
+  width: 1280px;
+  height: 625px;
+  padding: 28px;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.ending-summary-card {
+  width: 100%;
+  max-width: 1080px;
+  padding: 24px;
+  border: 2px solid #f0b380;
+  border-radius: 20px;
+  background: rgba(255, 253, 248, 0.98);
+  box-shadow: 0 16px 36px rgba(65, 83, 104, 0.18);
+  color: #2f4a65;
+  overflow: hidden;
+}
+
+.ending-summary-card h2 {
+  margin: 0 0 12px;
+  color: #eb7034;
+  font-size: 32px;
+}
+
+.ending-summary-card p {
+  margin: 0 0 16px;
+  line-height: 1.5;
+}
+
+.ending-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.ending-summary-panel {
+  padding: 18px;
+  border: 1px solid #f3d4bc;
+  border-radius: 16px;
+  background: #fff;
+}
+
+.ending-summary-panel--wide {
+  grid-column: 1 / -1;
+}
+
+.ending-summary-panel--finale {
+  background: linear-gradient(180deg, #fffdf8 0%, #fff6ef 100%);
+}
+
+.ending-summary-panel h3 {
+  margin: 0 0 14px;
+  color: #eb7034;
+  font-size: 20px;
+}
+
+.ending-summary-finale-copy {
+  color: #2f4a65;
+}
+
+.ending-summary-placeholder-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.ending-summary-placeholder-card {
+  min-height: 160px;
+  padding: 16px;
+  border: 2px dashed #f0b380;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.ending-summary-placeholder-card strong {
+  display: block;
+  margin-bottom: 12px;
+  color: #eb7034;
+  font-size: 18px;
+}
+
+.ending-summary-placeholder-card ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #2f4a65;
+  line-height: 1.6;
+}
+
+.ending-summary-logo-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ending-summary-logo-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 92px;
+  min-height: 56px;
+  padding: 8px 12px;
+  border: 1px solid #f3d4bc;
+  border-radius: 14px;
+  background: #fff7f1;
+  color: #6b7b8c;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.ending-summary-list {
+  margin: 0;
+}
+
+.ending-summary-list div + div {
+  margin-top: 10px;
+}
+
+.ending-summary-list dt {
+  color: #6b7b8c;
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ending-summary-list dd {
+  margin: 4px 0 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.ending-summary-badges {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 12px;
+}
+
+.ending-summary-badges li {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #fff7f1;
+  display: grid;
+  gap: 4px;
+}
+
+.ending-summary-badges strong {
+  color: #2f4a65;
+}
+
+.ending-summary-badges span {
+  color: #6b7b8c;
+  line-height: 1.4;
+}
+
+.ending-summary-empty {
+  margin: 0;
+  color: #6b7b8c;
+}
+
+.ending-summary-json {
+  height: 280px;
+  margin: 0;
+  padding: 16px;
+  border-radius: 14px;
+  background: #1f2937;
+  color: #f9fafb;
+  font-size: 14px;
+  line-height: 1.45;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+@media (max-width: 1024px) {
+  .ending-summary-placeholder-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .grzenia-hotspot {
   position: absolute;
   left: 72px;
   top: 112px;
   width: 230px;
   height: 335px;
-  background: transparent;
-  border: none;
+  z-index: 2;
+  border: 2px dashed rgba(255, 227, 130, 0.95);
+  border-radius: 20px;
+  background: rgba(255, 227, 130, 0.16);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.9),
+    0 10px 24px rgba(46, 64, 86, 0.16);
   cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.grzenia-hotspot::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  border-radius: 14px;
+  pointer-events: none;
+}
+
+.grzenia-hotspot::after {
+  content: "?";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 34px;
+  height: 34px;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background: #ffe382;
+  box-shadow: 0 8px 16px rgba(46, 64, 86, 0.22);
+  color: #2e4056;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  font-weight: 900;
+  line-height: 1;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: hotspot-pulse 1.8s ease-in-out infinite;
+}
+
+.grzenia-hotspot:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 227, 130, 0.24);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.95),
+    0 14px 28px rgba(46, 64, 86, 0.2);
+}
+
+.grzenia-hotspot[aria-pressed="true"] {
+  background: rgba(255, 227, 130, 0.28);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.95),
+    0 14px 28px rgba(46, 64, 86, 0.22);
+}
+
+@keyframes hotspot-pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.96);
+    box-shadow: 0 0 0 0 rgba(255, 227, 130, 0.6);
+  }
+
+  70% {
+    transform: translate(-50%, -50%) scale(1);
+    box-shadow: 0 0 0 14px rgba(255, 227, 130, 0);
+  }
+
+  100% {
+    transform: translate(-50%, -50%) scale(0.96);
+    box-shadow: 0 0 0 0 rgba(255, 227, 130, 0);
+  }
 }
 
 .info-popup {
   position: absolute;
   width: 255px;
   padding: 14px 16px;
-  border-radius: 10px;
-  background: #fff;
-  box-shadow: 0 12px 26px rgba(28, 41, 59, 0.22);
+  border: 2px solid #d9b548;
+  border-radius: 14px;
+  background: #ffe382;
+  box-shadow:
+    inset 0 0 0 2px #ffffff,
+    inset 0 0 0 12px #ffe382,
+    0 12px 26px rgba(28, 41, 59, 0.22);
   color: #2e4056;
 }
 
@@ -912,7 +1436,7 @@ watch(
   position: relative;
   width: 70px;
   height:70px;
-  border-radius: 22px;
+  border-radius: 14px;
   border: 2px solid #c8d3e7;
   background: #fff;
   cursor: pointer;
@@ -928,18 +1452,18 @@ watch(
 }
 
 .icon-button svg {
-  width: 38px;
-  height: 38px;
+  width: 52px;
+  height: 52x;
 }
 
 .backpack-icon-image {
-  width: 42px;
-  height: 42px;
+  width: 52px;
+  height: 52px;
   object-fit: contain;
 }
 
 .backpack-button {
-  border-color: #9ed39f;
+  border-color: #67a4da;
   color: #7ca9cf;
 }
 
@@ -972,17 +1496,19 @@ watch(
 .back-button {
   min-width: 72px;
   height: 58px;
-  border: 3px solid #2b2b2b;
+  border: 2px solid #999;
   border-radius: 14px;
   background: #fffdf8;
-  color: #1f1f1f;
+  color: #333;
   font-weight: 700;
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 6px;
   box-shadow: 0 8px 0 rgba(43, 43, 43, 0.18);
   cursor: pointer;
+  line-height: 1;
 }
 
 .back-button:disabled {
@@ -997,20 +1523,27 @@ watch(
   text-transform: uppercase;
 }
 
+.back-button-arrow {
+  font-size: 16px;
+  line-height: 1;
+}
+
 .choice-button {
   min-width: 240px;
   min-height: 58px;
   padding: 10px 24px;
-  border: 3px solid #2d2d2d;
-  border-radius: 16px;
-  background: #9fca7c;
-  color: #161616;
+  border: 2px solid #8dbd2f;
+  border-radius: 14px;
+  background: #a6ce39;
+  color: #ffffff;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 800;
   line-height: 1.1;
-  text-transform: uppercase;
   white-space: normal;
-  box-shadow: 0 8px 0 rgba(52, 86, 36, 0.26);
+  box-shadow:
+    inset 0 0 0 2px #ffffff,
+    inset 0 0 0 12px #a6ce39,
+    0 8px 0 rgba(52, 86, 36, 0.26);
   cursor: pointer;
 }
 
@@ -1021,7 +1554,7 @@ watch(
 }
 
 .choice-button:last-child {
-  background: #9fca7c;
+  background: #a6ce39;
 }
 
 .choice-overlay-layer {
