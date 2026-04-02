@@ -15,7 +15,7 @@ import type {
 } from "../types/gameFlow";
 
 const demoFlow = demoFlowJson as DemoFlow;
-const targetAchievementsCount = 18;
+const targetAchievementsCount = 25;
 const screenIds = new Set(demoFlow.screens.map((screen) => screen.id));
 const removedAchievementIds = new Set(["ach-1", "ach-2"]);
 
@@ -35,7 +35,14 @@ const achievementDescriptions: Record<string, string> = {
   "helpful-pack": "Pomogliście krzatom w kopalni kredy.",
   "chochlik-friendship": "Rozmowa z chochlikami okazała się najlepszym wyjściem.",
   "green-listened": "Porozmawialiście ze szkolnymi roślinami.",
-  "maze-triumph": "Rozszyfrowaliście plan szkoły."
+  "maze-triumph": "Rozszyfrowaliście plan szkoły.",
+  "assertiveness-power": "Jasno postawiłeś lub postawiłaś granice.",
+  "trust-is-key": "Baśka rozwiązała zagadkę Lasownika.",
+  "the-answer-is-fire": "Rozwiązałeś lub rozwiązałaś zagadkę Lasownika.",
+  "green-school": "Park został wysprzątany.",
+  "dream-team": "Razem pokonaliście Żmija Zapomnienia.",
+  "trust-pays-off": "Baśka pokonała Żmija Zapomnienia w pojedynku szermierczym.",
+  "magic-word": "Negocjacje ze Żmijem się powiodły."
 };
 
 const inventoryItemDescriptions: Record<string, string> = {
@@ -43,7 +50,8 @@ const inventoryItemDescriptions: Record<string, string> = {
   "magic-brush": "Magiczny pędzel trafia do twojego plecaka.",
   "legendary-yarn": "Legendarny Kłębek Włóczki trafia do twojego plecaka.",
   "fan-finger": "Cudowny Paluch Kibica trafia do twojego plecaka.",
-  "universal-key": "Klucz Uniwersalny trafia do twojego plecaka."
+  "universal-key": "Klucz Uniwersalny trafia do twojego plecaka.",
+  "peacemaker-stick": "Kijek Przymierza trafia do twojego plecaka."
 };
 
 const starterInventory: InventoryItem[] = [
