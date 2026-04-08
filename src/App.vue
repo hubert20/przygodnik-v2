@@ -4,8 +4,7 @@ import type { CSSProperties } from "vue";
 
 import { useGameSession } from "./composables/useGameSession";
 import { loadGameSessionSnapshot } from "./services/gameSessionStorage";
-import type { GameSessionSnapshot } from "./types/gameFlow";
-import type { ChoiceOverlay, StoryScreen } from "./types/gameFlow";
+import type { ChoiceOverlay, DemoChoice, GameSessionSnapshot, StoryScreen } from "./types/gameFlow";
 
 const {
   achievementToast,
@@ -64,6 +63,14 @@ const endingLinksItems = [
   "Link do materiałów dodatkowych"
 ];
 const endingPartnerItems = ["Sponsorzy", "Fundacja", "Partnerzy projektu"];
+const endingCreatorEntries = [
+  { role: "Scenariusz", name: "Do uzupełnienia" },
+  { role: "Scenariusz", name: "Do uzupełnienia" },
+  { role: "Programowanie", name: "Do uzupełnienia" },
+  { role: "Projekt graficzny", name: "Do uzupełnienia" },
+  { role: "Koordynacja", name: "Do uzupełnienia" },
+  { role: "Konsultacje", name: "Do uzupełnienia" }
+];
 const isCompactViewport = computed(() => viewportWidth.value <= 1024);
 const isMobileLandscapeViewport = computed(
   () => isCompactViewport.value && viewportWidth.value > viewportHeight.value
@@ -92,19 +99,43 @@ const usesCenteredOverlayLayout = computed(() => {
   return layout === "l016" || layout === "l017" || layout === "l018";
 });
 const backpackImage = computed(() => resolveImage("plecak.png"));
+const partnerLogosImage = computed(() => resolveImage("tkmax-ap-logo.png"));
 const isInitialLoaderVisible = ref(true);
 const hasInitialScreenLoaded = ref(false);
 const isEndingSummaryScreen = computed(() => storyScreen.value?.id === endingSummaryScreenId);
+const isLandingScreen = computed(() => !!welcomeScreen.value || !!introScreen.value);
+const usesHeroHeaderLayout = computed(() => isLandingScreen.value || isEndingSummaryScreen.value);
+const shouldShowFrameHeader = computed(() => showFrameHeader.value || isEndingSummaryScreen.value);
+const shouldShowResourceButtons = computed(() => {
+  const currentStoryScreenId = storyScreen.value?.id;
+
+  return currentStoryScreenId !== "s051" && currentStoryScreenId !== endingSummaryScreenId;
+});
 const visibleCollectedItems = computed(() => collectedItems.value.filter((item) => !!item.icon));
 const visibleUnlockedAchievements = computed(() =>
   unlockedAchievements.value.filter((achievement) => !!achievement.icon)
 );
+const pendingChoiceConfirmation = ref<DemoChoice | null>(null);
+const shouldShowBackButton = computed(() => {
+  if (!canGoBack.value || !storyScreen.value) {
+    return false;
+  }
+
+  if (visibleStoryChoices.value.length !== 1) {
+    return false;
+  }
+
+  return !visibleStoryChoices.value[0]?.confirmationPopup;
+});
 const summaryPlayerName = computed(() => playerName.value.trim() || "Nie podano");
 const summaryPlayerGenderLabel = computed(() =>
   playerGender.value === "female" ? "Dziewczynka" : "Chłopiec"
 );
 const summaryStoredScreenId = computed(
   () => endingSessionSnapshot.value?.currentScreenId ?? currentScreen.value.id
+);
+const activeChoiceConfirmation = computed(
+  () => pendingChoiceConfirmation.value?.confirmationPopup ?? null
 );
 
 function resolveImage(imageName: string): string {
@@ -203,6 +234,45 @@ function handleRestartGame(): void {
   }
 }
 
+function openGameMenu(): void {
+  isMenuOpen.value = true;
+}
+
+function requestStoryChoice(choice: DemoChoice): void {
+  if (choice.confirmationPopup) {
+    pendingChoiceConfirmation.value = choice;
+    return;
+  }
+
+  clickStoryChoice(choice);
+}
+
+function requestOverlayChoice(choiceId: string): void {
+  const choice = getOverlayChoice(choiceId);
+
+  if (!choice) {
+    return;
+  }
+
+  requestStoryChoice(choice);
+}
+
+function confirmPendingChoice(): void {
+  const choice = pendingChoiceConfirmation.value;
+
+  pendingChoiceConfirmation.value = null;
+
+  if (!choice) {
+    return;
+  }
+
+  clickStoryChoice(choice);
+}
+
+function cancelPendingChoice(): void {
+  pendingChoiceConfirmation.value = null;
+}
+
 onMounted(() => {
   updateViewport();
   window.addEventListener("resize", updateViewport);
@@ -215,6 +285,8 @@ onBeforeUnmount(() => {
 watch(
   () => currentScreen.value.id,
   async () => {
+    pendingChoiceConfirmation.value = null;
+
     if (isEndingSummaryScreen.value) {
       refreshEndingSessionSnapshot();
     }
@@ -240,7 +312,7 @@ watch(
 </script>
 
 <template>
-  <main class="page">
+  <main class="page" :class="{ 'page--hero-surface': usesHeroHeaderLayout }">
     <div v-if="isInitialLoaderVisible" class="startup-loader">
       <div class="startup-loader-card">
         <div class="startup-loader-spinner" aria-hidden="true"></div>
@@ -256,7 +328,12 @@ watch(
       </div>
     </div>
 
-    <button class="menu-toggle page-menu-toggle" @click="isMenuOpen = !isMenuOpen" aria-label="Menu">
+    <button
+      v-if="!usesHeroHeaderLayout"
+      class="menu-toggle page-menu-toggle"
+      @click="isMenuOpen = !isMenuOpen"
+      aria-label="Menu"
+    >
       <span></span>
       <span></span>
       <span></span>
@@ -269,13 +346,31 @@ watch(
       </button>
     </aside>
 
-    <section class="game-frame" :class="{ 'story-frame': !!storyScreen }">
-      <header v-if="showFrameHeader" class="game-header">
+    <section
+      class="game-frame"
+      :class="{
+        'story-frame': !!storyScreen && !isEndingSummaryScreen,
+        'game-frame--hero': usesHeroHeaderLayout
+      }"
+    >
+      <header v-if="shouldShowFrameHeader" class="game-header" :class="{ 'game-header--hero': usesHeroHeaderLayout }">
         <div class="brand-block">
           <h1>{{ currentScreen.title }}</h1>
           <p>{{ currentScreen.subtitle }}</p>
         </div>
-        <div class="logos">TK Maxx & Akademia Przyszlosci</div>
+        <div class="logos">
+          <img class="logos-image" :src="partnerLogosImage" alt="TK Maxx i Akademia Przyszlosci" />
+        </div>
+        <button
+          v-if="usesHeroHeaderLayout"
+          class="menu-toggle hero-menu-toggle"
+          @click="isMenuOpen = !isMenuOpen"
+          aria-label="Menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
       </header>
 
       <section v-if="welcomeScreen" class="screen-content framed-screen welcome-screen">
@@ -287,7 +382,7 @@ watch(
           />
           <div class="welcome-copy">
             <h2 v-html="welcomeScreen.heading"></h2>
-            <p>{{ welcomeScreen.description }}</p>
+            <p v-html="welcomeScreen.description"></p>
           </div>
         </div>
         <button
@@ -343,129 +438,143 @@ watch(
         </button>
       </section>
 
-      <section v-if="storyScreen" class="screen-content story-screen">
+      <section v-if="isEndingSummaryScreen" class="screen-content framed-screen ending-finale-screen">
+        <div class="ending-finale-layout">
+          <div class="ending-finale-card">
+            <h2>Gratulacje!</h2>
+            <p>Ukończyłeś/aś przygodę! Jesteś prawdziwym bohaterem!</p>
+            <div class="ending-finale-trophy" aria-hidden="true">🏆</div>
+            <div class="ending-finale-actions">
+              <button class="ending-finale-button ending-finale-button--primary" @click="handleRestartGame">
+                Graj jeszcze raz!
+              </button>
+              <button class="ending-finale-button ending-finale-button--secondary" @click="openGameMenu">
+                Menu gry
+              </button>
+            </div>
+            <section v-if="visibleUnlockedAchievements.length" class="ending-finale-achievements">
+              <h3>Twoja kolekcja osiągnięć</h3>
+              <p>
+                {{ visibleUnlockedAchievements.length }} / {{ totalAchievementsCount }} odblokowanych
+              </p>
+              <div class="ending-finale-achievements-row">
+                <span
+                  v-for="achievement in visibleUnlockedAchievements"
+                  :key="achievement.id"
+                  class="ending-summary-mini-icon ending-summary-mini-icon--achievement"
+                  :title="achievement.label"
+                >
+                  {{ achievement.icon }}
+                </span>
+              </div>
+            </section>
+          </div>
+
+          <section class="ending-creators">
+            <h3>Twórcy</h3>
+            <div class="ending-creators-grid">
+              <article v-for="(entry, index) in endingCreatorEntries" :key="`${entry.role}-${index}`" class="ending-creator-entry">
+                <span class="ending-creator-role">{{ entry.role }}</span>
+                <span class="ending-creator-name">{{ entry.name }}</span>
+              </article>
+            </div>
+          </section>
+
+          <footer class="ending-finale-footer">© 2026 PRZYGODNIK - Wszystkie prawa zastrzeżone</footer>
+        </div>
+
+        <!-- Legacy ending summary panels kept for likely move to the pre-finale step.
+        <div class="ending-summary-grid">
+          <section class="ending-summary-panel">
+            <h3>Gracz</h3>
+            <dl class="ending-summary-list">
+              <div>
+                <dt>Imię</dt>
+                <dd>{{ summaryPlayerName }}</dd>
+              </div>
+              <div>
+                <dt>Postać</dt>
+                <dd>{{ summaryPlayerGenderLabel }}</dd>
+              </div>
+              <div>
+                <dt>Aktualny ekran</dt>
+                <dd>{{ currentScreen.id }}</dd>
+              </div>
+              <div>
+                <dt>Zapisany ekran</dt>
+                <dd>{{ summaryStoredScreenId }}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="ending-summary-panel">
+            <h3>Postęp</h3>
+            <dl class="ending-summary-list">
+              <div>
+                <dt>Odblokowane osiągnięcia</dt>
+                <dd class="ending-summary-stat-value">
+                  <span>{{ visibleUnlockedAchievements.length }} / {{ totalAchievementsCount }}</span>
+                </dd>
+              </div>
+              <div>
+                <dt>Zablokowane osiągnięcia</dt>
+                <dd>{{ remainingLockedAchievementsCount }}</dd>
+              </div>
+              <div>
+                <dt>Artefakty w plecaku</dt>
+                <dd class="ending-summary-stat-value">
+                  <span>{{ visibleCollectedItems.length }}</span>
+                </dd>
+              </div>
+              <div>
+                <dt>Nieprzeczytane powiadomienia</dt>
+                <dd>Osiągnięcia: {{ unreadAchievementsCount }}, plecak: {{ unreadInventoryCount }}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section class="ending-summary-panel">
+            <h3>Osiągnięcia</h3>
+            <ul v-if="visibleUnlockedAchievements.length" class="ending-summary-badges">
+              <li v-for="achievement in visibleUnlockedAchievements" :key="achievement.id">
+                <strong>{{ achievement.icon }} {{ achievement.label }}</strong>
+                <span>{{ achievement.description || "Brak opisu." }}</span>
+              </li>
+            </ul>
+          </section>
+
+          <section class="ending-summary-panel">
+            <h3>Artefakty</h3>
+            <ul v-if="visibleCollectedItems.length" class="ending-summary-badges">
+              <li v-for="item in visibleCollectedItems" :key="item.id">
+                <strong>{{ item.icon }} {{ item.label }}</strong>
+                <span>{{ item.description || "Brak opisu." }}</span>
+              </li>
+            </ul>
+          </section>
+
+          <section class="ending-summary-panel ending-summary-panel--wide">
+            <h3>Zapis sesji</h3>
+            <pre class="ending-summary-json">{{
+              endingSessionSnapshot
+                ? JSON.stringify(endingSessionSnapshot, null, 2)
+                : "Brak danych zapisanych w localStorage."
+            }}</pre>
+          </section>
+        </div>
+        -->
+      </section>
+
+      <section v-else-if="storyScreen" class="screen-content story-screen">
         <div class="comic-stage" :style="storyViewportStyle">
+        <Transition name="story-step" mode="out-in">
+        <div class="story-step-shell" :key="currentScreen.id">
         <div
           class="comic-wrapper"
           :class="{ 'overlay-choice-scene': usesImageOverlayChoices }"
           :style="storyWrapperStyle"
         >
-          <div v-if="isEndingSummaryScreen" class="ending-summary-scene">
-            <div class="ending-summary-card">
-              <h2>Podsumowanie sesji</h2>
-              <p>Na razie to roboczy ekran końcowy. Później podmienimy go pod docelowy layout.</p>
-
-              <div class="ending-summary-grid">
-                <section class="ending-summary-panel">
-                  <h3>Gracz</h3>
-                  <dl class="ending-summary-list">
-                    <div>
-                      <dt>Imię</dt>
-                      <dd>{{ summaryPlayerName }}</dd>
-                    </div>
-                    <div>
-                      <dt>Postać</dt>
-                      <dd>{{ summaryPlayerGenderLabel }}</dd>
-                    </div>
-                    <div>
-                      <dt>Aktualny ekran</dt>
-                      <dd>{{ currentScreen.id }}</dd>
-                    </div>
-                    <div>
-                      <dt>Zapisany ekran</dt>
-                      <dd>{{ summaryStoredScreenId }}</dd>
-                    </div>
-                  </dl>
-                </section>
-
-                <section class="ending-summary-panel">
-                  <h3>Postęp</h3>
-                  <dl class="ending-summary-list">
-                    <div>
-                      <dt>Odblokowane osiągnięcia</dt>
-                      <dd>{{ visibleUnlockedAchievements.length }} / {{ totalAchievementsCount }}</dd>
-                    </div>
-                    <div>
-                      <dt>Zablokowane osiągnięcia</dt>
-                      <dd>{{ remainingLockedAchievementsCount }}</dd>
-                    </div>
-                    <div>
-                      <dt>Artefakty w plecaku</dt>
-                      <dd>{{ visibleCollectedItems.length }}</dd>
-                    </div>
-                    <div>
-                      <dt>Nieprzeczytane powiadomienia</dt>
-                      <dd>Osiągnięcia: {{ unreadAchievementsCount }}, plecak: {{ unreadInventoryCount }}</dd>
-                    </div>
-                  </dl>
-                </section>
-
-                <section class="ending-summary-panel ending-summary-panel--wide ending-summary-panel--finale">
-                  <h3>Ekran ostatni</h3>
-                  <p class="ending-summary-finale-copy">
-                    Tutaj docelowo wstawimy końcowe creditsy, linki do wcześniejszych części oraz logotypy
-                    sponsorów i partnerów.
-                  </p>
-                  <div class="ending-summary-placeholder-grid">
-                    <article class="ending-summary-placeholder-card">
-                      <strong>Creditsy</strong>
-                      <ul>
-                        <li v-for="item in endingCreditsItems" :key="item">{{ item }}</li>
-                      </ul>
-                    </article>
-                    <article class="ending-summary-placeholder-card">
-                      <strong>Linki</strong>
-                      <ul>
-                        <li v-for="item in endingLinksItems" :key="item">{{ item }}</li>
-                      </ul>
-                    </article>
-                    <article class="ending-summary-placeholder-card">
-                      <strong>Logotypy</strong>
-                      <div class="ending-summary-logo-row">
-                        <span v-for="item in endingPartnerItems" :key="item" class="ending-summary-logo-chip">
-                          {{ item }}
-                        </span>
-                      </div>
-                    </article>
-                  </div>
-                </section>
-
-                <section class="ending-summary-panel">
-                  <h3>Osiągnięcia</h3>
-                  <ul v-if="visibleUnlockedAchievements.length" class="ending-summary-badges">
-                    <li v-for="achievement in visibleUnlockedAchievements" :key="achievement.id">
-                      <strong>{{ achievement.icon }} {{ achievement.label }}</strong>
-                      <span>{{ achievement.description || "Brak opisu." }}</span>
-                    </li>
-                  </ul>
-                  <p v-else class="ending-summary-empty">Brak odblokowanych osiągnięć.</p>
-                </section>
-
-                <section class="ending-summary-panel">
-                  <h3>Artefakty</h3>
-                  <ul v-if="visibleCollectedItems.length" class="ending-summary-badges">
-                    <li v-for="item in visibleCollectedItems" :key="item.id">
-                      <strong>{{ item.icon }} {{ item.label }}</strong>
-                      <span>{{ item.description || "Brak opisu." }}</span>
-                    </li>
-                  </ul>
-                  <p v-else class="ending-summary-empty">Brak artefaktów w plecaku.</p>
-                </section>
-
-                <section class="ending-summary-panel ending-summary-panel--wide">
-                  <h3>Zapis sesji</h3>
-                  <pre class="ending-summary-json">{{
-                    endingSessionSnapshot
-                      ? JSON.stringify(endingSessionSnapshot, null, 2)
-                      : "Brak danych zapisanych w localStorage."
-                  }}</pre>
-                </section>
-              </div>
-            </div>
-          </div>
-
           <img
-            v-else
             class="story-image"
             :src="resolveImage(getStoryImageName(storyScreen))"
             :alt="`Scena ${storyScreen.id}`"
@@ -514,7 +623,7 @@ watch(
             <p>{{ storyScreen.infoPopup.body }}</p>
           </div>
 
-          <div class="bottom-ui left">
+          <div v-if="shouldShowResourceButtons" class="bottom-ui left">
             <button class="icon-button backpack-button" @click="toggleInventory">
               <img
                 class="backpack-icon-image"
@@ -581,7 +690,7 @@ watch(
           </div>
 
           <div class="bottom-ui right">
-            <button class="back-button" :disabled="!canGoBack" @click="handleBack">
+            <button v-if="shouldShowBackButton" class="back-button" :disabled="!canGoBack" @click="handleBack">
               <span class="back-button-arrow" aria-hidden="true">&larr;</span>
               <span>Cofnij</span>
             </button>
@@ -591,7 +700,7 @@ watch(
               :key="choice.id"
               class="choice-button"
               :disabled="!hasScreen(choice.nextScreenId)"
-              @click="clickStoryChoice(choice)"
+              @click="requestStoryChoice(choice)"
             >
               {{ choice.label }}
             </button>
@@ -612,7 +721,7 @@ watch(
               :title="getOverlayChoice(overlay.choiceId)?.label ?? ''"
               :aria-label="getOverlayChoice(overlay.choiceId)?.label ?? ''"
               :disabled="!hasScreen(getOverlayChoice(overlay.choiceId)?.nextScreenId ?? null)"
-              @click="clickOverlayChoice(overlay.choiceId)"
+              @click="requestOverlayChoice(overlay.choiceId)"
             >
               <span
                 class="overlay-choice-chip"
@@ -728,7 +837,33 @@ watch(
               </div>
             </div>
           </div>
+
+          <div
+            v-if="activeChoiceConfirmation"
+            class="choice-confirmation-overlay"
+            role="dialog"
+            aria-modal="true"
+            :aria-labelledby="'choice-confirmation-title'"
+          >
+            <div class="choice-confirmation-card">
+              <div class="choice-confirmation-icon" aria-hidden="true">
+                {{ activeChoiceConfirmation.icon || "!" }}
+              </div>
+              <h3 id="choice-confirmation-title">{{ activeChoiceConfirmation.title }}</h3>
+              <p>{{ activeChoiceConfirmation.body }}</p>
+              <div class="choice-confirmation-actions">
+                <button class="choice-confirmation-button choice-confirmation-button--confirm" @click="confirmPendingChoice">
+                  {{ activeChoiceConfirmation.confirmLabel }}
+                </button>
+                <button class="choice-confirmation-button choice-confirmation-button--cancel" @click="cancelPendingChoice">
+                  {{ activeChoiceConfirmation.cancelLabel }}
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
+        </div>
+        </Transition>
         </div>
       </section>
     </section>
@@ -740,7 +875,8 @@ watch(
   margin: 0;
   font-family: Inter, Arial, sans-serif;
   background: #fff;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 :global(*) {
@@ -753,7 +889,16 @@ watch(
   display: grid;
   place-items: center;
   padding: 16px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+
+.page--hero-surface {
+  width: 100%;
+  padding: 0;
+  display: block;
+  overflow-y: auto;
+  background: linear-gradient(-90deg, rgba(148, 200, 134, 1) 0%, rgba(200, 216, 130, 1) 50%, rgba(249, 230, 125, 1) 100%);
 }
 
 .startup-loader {
@@ -844,7 +989,17 @@ watch(
   width: min(1280px, calc((100vh - 32px) * 16 / 9), calc(100vw - 32px));
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  background: linear-gradient(135deg, #f6eb88 0%, #b6e374 52%, #89d18b 100%);
+  background: linear-gradient(-90deg,rgba(148, 200, 134, 1) 0%, rgba(200, 216, 130, 1) 50%, rgba(249, 230, 125, 1) 100%);
+}
+
+.game-frame--hero {
+  width: 100%;
+  min-height: 100vh;
+  aspect-ratio: auto;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  align-content: start;
+  background: transparent;
 }
 
 .story-frame {
@@ -858,39 +1013,64 @@ watch(
   position: relative;
   z-index: 10;
   display: grid;
-  grid-template-columns: 1fr auto auto;
+  grid-template-columns: 1fr auto;
   align-items: start;
   gap: 18px;
   padding: 22px 30px 16px;
-  border-bottom: 2px solid rgba(49, 72, 93, 0.32);
+  border-bottom: 2px solid #1d4959;
+}
+
+.game-header--hero {
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr) 54px;
+  align-items: center;
+  padding: 22px 40px 16px;
 }
 
 .brand-block h1 {
   margin: 0;
-  font-size: clamp(34px, 3.6vw, 58px);
+  font-size: clamp(34px, 3.6vw, 48px);
   line-height: 0.95;
-  color: #1d3b60;
-  font-weight: 900;
+  color: #1d4959;
+  font-weight: 600;
 }
 
 .brand-block p {
   margin: 8px 0 0;
   font-size: 13px;
-  color: #32506e;
+  color: #1d4959;
 }
 
 .logos {
   justify-self: center;
-  font-size: 22px;
-  font-weight: 800;
-  color: #d23d3d;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.game-header--hero .logos {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  justify-self: auto;
+}
+
+.logos-image {
+  width: min(250px, 24vw);
+  height: auto;
+  display: block;
+}
+
+.hero-menu-toggle {
+  justify-self: end;
+  z-index: 1;
 }
 
 .menu-toggle {
   width: 54px;
   height: 54px;
-  border: 1px solid rgba(104, 132, 158, 0.55);
+  border: 2px solid #7CAED3;
   border-radius: 16px;
   background: #fff;
   box-shadow: 0 6px 18px rgba(72, 97, 124, 0.22);
@@ -905,7 +1085,7 @@ watch(
   width: 22px;
   height: 2px;
   border-radius: 999px;
-  background: #6f89a7;
+  background: #7CAED3;
 }
 
 .page-menu-toggle {
@@ -979,20 +1159,28 @@ watch(
 }
 
 .welcome-screen,
-.intro-screen {
+.intro-screen,
+.ending-finale-screen {
   display: grid;
   align-content: start;
   justify-items: center;
 }
 
+.game-frame--hero .framed-screen {
+  width: 100%;
+  height: auto;
+  min-height: 0;
+  padding: 18px 40px 24px;
+}
+
 .welcome-layout,
 .intro-layout {
   width: 100%;
-  max-width: 960px;
+  max-width: 1000px;
   display: grid;
   grid-template-columns: 1fr 1fr;
   align-items: center;
-  gap: 36px;
+  gap: 24px;
   margin-top: 24px;
 }
 
@@ -1013,15 +1201,14 @@ watch(
 
 .welcome-copy h2,
 .intro-form h2 {
-font-size: 28px;
+font-size: 24px;
 }
 
 .welcome-copy p {
   margin: 0;
   color: #2f4a65;
   line-height: 1.5;
-  font-size: 17px;
-  white-space: pre-line;
+  font-size: 16px;
 }
 
 .intro-form {
@@ -1100,6 +1287,31 @@ font-size: 28px;
   will-change: transform;
 }
 
+.story-step-shell {
+  position: absolute;
+  inset: 0;
+}
+
+.story-step-enter-active,
+.story-step-leave-active {
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease,
+    filter 0.22s ease;
+}
+
+.story-step-enter-from {
+  opacity: 0;
+  transform: translateX(20px);
+  filter: blur(5px);
+}
+
+.story-step-leave-to {
+  opacity: 0;
+  transform: translateX(-16px);
+  filter: blur(5px);
+}
+
 .overlay-choice-scene .story-image {
   border-radius: 0;
 }
@@ -1110,6 +1322,165 @@ font-size: 28px;
   height: 625px;
   object-fit: cover;
   border-radius: 6px;
+}
+
+.ending-finale-screen {
+  padding-top: 12px;
+}
+
+.ending-finale-layout {
+  width: 100%;
+  max-width: 1000px;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.ending-finale-card {
+  width: min(660px, 100%);
+  padding: 26px 32px 28px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 16px 34px rgba(73, 89, 53, 0.28);
+  text-align: center;
+}
+
+.ending-finale-card h2 {
+  margin: 0 0 10px;
+  color: #ef7b39;
+  font-size: 34px;
+  line-height: 1;
+}
+
+.ending-finale-card p {
+  margin: 0;
+  color: #d37a3d;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.ending-finale-trophy {
+  width: 76px;
+  height: 76px;
+  margin: 18px auto 20px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 30% 30%, #fff0a8, #ffd55a);
+  box-shadow: 0 8px 18px rgba(255, 208, 74, 0.35);
+  font-size: 40px;
+}
+
+.ending-finale-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.ending-finale-achievements {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(211, 122, 61, 0.18);
+}
+
+.ending-finale-achievements h3 {
+  margin: 0;
+  color: #ef7b39;
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.ending-finale-achievements p {
+  margin: 8px 0 0;
+  color: #8c5c40;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.ending-finale-achievements-row {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.ending-finale-button {
+  min-height: 54px;
+  border-radius: 12px;
+  font: inherit;
+  font-size: 18px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.ending-finale-button--primary {
+  border: 2px solid #eea474;
+  background: #ffffff;
+  color: #ef7b39;
+  box-shadow: 0 7px 16px rgba(222, 120, 48, 0.25);
+}
+
+.ending-finale-button--secondary {
+  border: 2px solid #b3d0e6;
+  background: #ffffff;
+  color: #7aa5c7;
+  box-shadow: 0 7px 16px rgba(121, 165, 199, 0.22);
+}
+
+.ending-creators {
+  width: min(720px, 100%);
+  text-align: center;
+}
+
+.ending-creators h3 {
+  margin: 0 0 14px;
+  color: #ffffff;
+  font-size: 30px;
+  font-weight: 900;
+  text-shadow: 0 4px 14px rgba(56, 88, 58, 0.22);
+}
+
+.ending-creators-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 18px;
+}
+
+.ending-creator-entry {
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  border-radius: 12px;
+  overflow: hidden;
+  /*box-shadow: 0 8px 18px rgba(72, 97, 124, 0.16);*/
+  background: linear-gradient(90deg,rgba(206, 221, 147, 1) 0%, rgba(255, 255, 255, 0) 100%);
+}
+
+.ending-creator-role,
+.ending-creator-name {
+  min-height: 40px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.ending-creator-role {
+  color: #4f6648;
+}
+
+.ending-creator-name {
+  color: #fff;
+}
+
+.ending-finale-footer {
+  color: #1d4959;
+  font-size: 15px;
+  text-align: center;
 }
 
 .ending-summary-scene {
@@ -1124,13 +1495,15 @@ font-size: 28px;
 .ending-summary-card {
   width: 100%;
   max-width: 1080px;
+  height: 100%;
   padding: 24px;
   border: 2px solid #f0b380;
   border-radius: 20px;
   background: rgba(255, 253, 248, 0.98);
   box-shadow: 0 16px 36px rgba(65, 83, 104, 0.18);
   color: #2f4a65;
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .ending-summary-card h2 {
@@ -1244,6 +1617,35 @@ font-size: 28px;
   margin: 4px 0 0;
   font-size: 16px;
   font-weight: 700;
+}
+
+.ending-summary-stat-value {
+  display: grid;
+  gap: 8px;
+}
+
+.ending-summary-icon-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ending-summary-mini-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: inline-grid;
+  place-items: center;
+  font-size: 16px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.92);
+}
+
+.ending-summary-mini-icon--achievement {
+  background: radial-gradient(circle at 30% 30%, #fff1b0, #ffd861);
+}
+
+.ending-summary-mini-icon--item {
+  background: radial-gradient(circle at 30% 30%, #d9ecff, #97c6f0);
 }
 
 .ending-summary-badges {
@@ -1570,10 +1972,21 @@ font-size: 28px;
   justify-content: flex-start;
   padding: 0;
   border: none;
-  background: transparent;
+  background: rgba(255, 255, 255, 0);
   box-shadow: none;
+  border-radius: 18px;
   cursor: pointer;
   pointer-events: auto;
+  transition:
+    background 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.overlay-choice-button:hover {
+  background: rgba(255, 255, 255, 0.18);
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.68),
+    inset 0 0 0 8px rgba(255, 227, 130, 0.2);
 }
 
 .choice-overlay-layer--centered .overlay-choice-button--centered {
@@ -1605,6 +2018,11 @@ font-size: 28px;
 .overlay-choice-button:disabled .overlay-choice-chip {
   opacity: 0.72;
   cursor: not-allowed;
+  box-shadow: none;
+}
+
+.overlay-choice-button:disabled:hover {
+  background: transparent;
   box-shadow: none;
 }
 
@@ -1954,9 +2372,88 @@ font-size: 28px;
   cursor: pointer;
 }
 
+.choice-confirmation-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(38, 52, 70, 0.46);
+  z-index: 36;
+}
+
+.choice-confirmation-card {
+  width: min(520px, calc(100% - 24px));
+  padding: 28px 28px 24px;
+  border: 3px solid #ffd972;
+  border-radius: 24px;
+  background: #fffdf9;
+  box-shadow: 0 22px 44px rgba(79, 63, 17, 0.24);
+  text-align: center;
+}
+
+.choice-confirmation-icon {
+  width: 76px;
+  height: 76px;
+  margin: 0 auto 16px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 30% 30%, #fff0a8, #ffd55a);
+  color: #24374f;
+  font-size: 38px;
+  font-weight: 900;
+  box-shadow: 0 8px 18px rgba(255, 208, 74, 0.35);
+}
+
+.choice-confirmation-card h3 {
+  margin: 0 0 12px;
+  color: #ef7b39;
+  font-size: 28px;
+}
+
+.choice-confirmation-card p {
+  margin: 0 auto 20px;
+  max-width: 360px;
+  color: #48607d;
+  font-size: 17px;
+  line-height: 1.45;
+  white-space: pre-line;
+}
+
+.choice-confirmation-actions {
+  display: grid;
+  gap: 12px;
+}
+
+.choice-confirmation-button {
+  min-height: 52px;
+  border-radius: 999px;
+  border: none;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.choice-confirmation-button--confirm {
+  background: linear-gradient(180deg, #a8d88f 0%, #88c66d 100%);
+  color: #ffffff;
+  box-shadow: 0 10px 18px rgba(136, 198, 109, 0.35);
+}
+
+.choice-confirmation-button--cancel {
+  background: #fff4ea;
+  color: #48607d;
+  box-shadow: inset 0 0 0 2px #f0caa8;
+}
+
 @media (max-width: 980px), (max-height: 500px) {
   .page {
     padding: 6px;
+  }
+
+  .page--hero-surface {
+    padding: 0;
   }
 
   .page-menu-toggle {
@@ -1984,13 +2481,27 @@ font-size: 28px;
     border-radius: 12px;
   }
 
+  .game-frame--hero {
+    min-height: 100vh;
+    border-radius: 0;
+  }
+
   .framed-screen {
     height: calc(100% - 72px);
     padding: 12px 16px 18px;
   }
 
+  .game-frame--hero .framed-screen {
+    height: auto;
+    padding: 12px 16px 18px;
+  }
+
   .game-header {
     gap: 12px;
+    padding: 14px 16px 10px;
+  }
+
+  .game-header--hero {
     padding: 14px 16px 10px;
   }
 
@@ -2004,7 +2515,81 @@ font-size: 28px;
   }
 
   .logos {
-    font-size: 15px;
+    align-self: center;
+  }
+
+  .logos-image {
+    width: min(180px, 28vw);
+  }
+
+  .game-header--hero .logos {
+    top: 14px;
+  }
+
+  .ending-finale-layout {
+    gap: 18px;
+  }
+
+  .ending-finale-card {
+    width: min(560px, 100%);
+    padding: 22px 22px 24px;
+  }
+
+  .ending-finale-card h2 {
+    font-size: 28px;
+  }
+
+  .ending-finale-card p {
+    font-size: 16px;
+  }
+
+  .ending-finale-trophy {
+    width: 68px;
+    height: 68px;
+    margin: 16px auto 18px;
+    font-size: 34px;
+  }
+
+  .ending-finale-actions {
+    gap: 12px;
+  }
+
+  .ending-finale-achievements {
+    margin-top: 18px;
+    padding-top: 16px;
+  }
+
+  .ending-finale-achievements h3 {
+    font-size: 18px;
+  }
+
+  .ending-finale-button {
+    min-height: 46px;
+    font-size: 16px;
+  }
+
+  .ending-creators h3 {
+    font-size: 24px;
+  }
+
+  .ending-creators-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .ending-creator-entry {
+    grid-template-columns: 140px minmax(0, 1fr);
+  }
+
+  .ending-creator-role,
+  .ending-creator-name {
+    min-height: 36px;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .ending-finale-footer {
+    font-size: 13px;
   }
 
   .welcome-layout,

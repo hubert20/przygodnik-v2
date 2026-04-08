@@ -1,7 +1,9 @@
-import type { GameSessionSnapshot } from "../types/gameFlow";
+import type { GameSessionSnapshot, ScreenAchievement } from "../types/gameFlow";
 
 const STORAGE_KEY = "przygodnik-v2-game-session";
 const STORAGE_VERSION = 1;
+const GLOBAL_ACHIEVEMENTS_STORAGE_KEY = "przygodnik-v2-global-achievements";
+const GLOBAL_ACHIEVEMENTS_STORAGE_VERSION = 1;
 
 function canUseLocalStorage(): boolean {
   return typeof window !== "undefined" && typeof window.localStorage !== "undefined";
@@ -70,4 +72,49 @@ export function clearGameSessionSnapshot(): void {
   }
 
   window.localStorage.removeItem(STORAGE_KEY);
+}
+
+interface GlobalAchievementsSnapshot {
+  version: number;
+  achievements: ScreenAchievement[];
+}
+
+export function loadGlobalAchievements(): ScreenAchievement[] {
+  if (!canUseLocalStorage()) {
+    return [];
+  }
+
+  try {
+    const payload = window.localStorage.getItem(GLOBAL_ACHIEVEMENTS_STORAGE_KEY);
+
+    if (!payload) {
+      return [];
+    }
+
+    const parsed = JSON.parse(payload) as Partial<GlobalAchievementsSnapshot>;
+
+    if (
+      parsed.version !== GLOBAL_ACHIEVEMENTS_STORAGE_VERSION ||
+      !isStoredRecordArray(parsed.achievements)
+    ) {
+      return [];
+    }
+
+    return parsed.achievements as ScreenAchievement[];
+  } catch {
+    return [];
+  }
+}
+
+export function saveGlobalAchievements(achievements: ScreenAchievement[]): void {
+  if (!canUseLocalStorage()) {
+    return;
+  }
+
+  const payload: GlobalAchievementsSnapshot = {
+    version: GLOBAL_ACHIEVEMENTS_STORAGE_VERSION,
+    achievements
+  };
+
+  window.localStorage.setItem(GLOBAL_ACHIEVEMENTS_STORAGE_KEY, JSON.stringify(payload));
 }

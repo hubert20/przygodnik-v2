@@ -2,7 +2,9 @@ import { computed, ref, watch } from "vue";
 
 import {
   clearGameSessionSnapshot,
+  loadGlobalAchievements,
   loadGameSessionSnapshot,
+  saveGlobalAchievements,
   saveGameSessionSnapshot
 } from "../services/gameSessionStorage";
 import demoFlowJson from "../scenario/demo-flow.json";
@@ -15,7 +17,7 @@ import type {
 } from "../types/gameFlow";
 
 const demoFlow = demoFlowJson as DemoFlow;
-const targetAchievementsCount = 25;
+const targetAchievementsCount = 21;
 const screenIds = new Set(demoFlow.screens.map((screen) => screen.id));
 const removedAchievementIds = new Set(["ach-1", "ach-2"]);
 
@@ -100,7 +102,8 @@ export function useGameSession() {
   const unreadAchievementsCount = ref(0);
   const unreadInventoryCount = ref(0);
   const collectedItems = ref<InventoryItem[]>(createStarterInventory());
-  const unlockedAchievements = ref<ScreenAchievement[]>(createStarterAchievements());
+  const sessionUnlockedAchievements = ref<ScreenAchievement[]>(createStarterAchievements());
+  const globalUnlockedAchievements = ref<ScreenAchievement[]>(createStarterAchievements());
 
   const currentScreen = computed(
     () =>
@@ -127,6 +130,23 @@ export function useGameSession() {
   const visibleChoiceOverlays = computed(() =>
     storyScreen.value?.choiceOverlays?.filter((overlay) => getOverlayChoice(overlay.choiceId)) ?? []
   );
+  const unlockedAchievements = computed(() => {
+    const mergedAchievements = createStarterAchievements();
+
+    for (const achievement of globalUnlockedAchievements.value) {
+      if (!mergedAchievements.some((item) => item.id === achievement.id)) {
+        mergedAchievements.push(achievement);
+      }
+    }
+
+    for (const achievement of sessionUnlockedAchievements.value) {
+      if (!mergedAchievements.some((item) => item.id === achievement.id)) {
+        mergedAchievements.push(achievement);
+      }
+    }
+
+    return mergedAchievements;
+  });
   const totalAchievementsCount = computed(() => targetAchievementsCount);
   const remainingLockedAchievementsCount = computed(() =>
     Math.max(targetAchievementsCount - unlockedAchievements.value.length, 0)
@@ -147,7 +167,10 @@ export function useGameSession() {
   }
 
   function hasAchievement(achievementId: string | null | undefined): boolean {
-    return !!achievementId && unlockedAchievements.value.some((item) => item.id === achievementId);
+    return (
+      !!achievementId &&
+      sessionUnlockedAchievements.value.some((item) => item.id === achievementId)
+    );
   }
 
   function isChoiceVisible(choice: DemoChoice): boolean {
@@ -235,13 +258,15 @@ export function useGameSession() {
       playerName: playerName.value,
       playerGender: playerGender.value,
       collectedItems: cloneInventoryItems(collectedItems.value),
-      unlockedAchievements: cloneAchievements(unlockedAchievements.value),
+      unlockedAchievements: cloneAchievements(sessionUnlockedAchievements.value),
       unreadAchievementsCount: unreadAchievementsCount.value,
       unreadInventoryCount: unreadInventoryCount.value
     });
   }
 
   function hydrateSessionFromStorage(): void {
+    globalUnlockedAchievements.value = normalizeStoredAchievements(loadGlobalAchievements());
+
     const snapshot = loadGameSessionSnapshot();
 
     if (!snapshot) {
@@ -263,10 +288,24 @@ export function useGameSession() {
     playerName.value = snapshot.playerName;
     playerGender.value = snapshot.playerGender === "female" ? "female" : "male";
     collectedItems.value = normalizeStoredItems(snapshot.collectedItems);
-    unlockedAchievements.value = normalizeStoredAchievements(snapshot.unlockedAchievements);
+    sessionUnlockedAchievements.value = normalizeStoredAchievements(snapshot.unlockedAchievements);
+
+    let shouldPersistGlobalAchievements = false;
+
+    for (const achievement of sessionUnlockedAchievements.value) {
+      if (!globalUnlockedAchievements.value.some((item) => item.id === achievement.id)) {
+        globalUnlockedAchievements.value.push(achievement);
+        shouldPersistGlobalAchievements = true;
+      }
+    }
+
+    if (shouldPersistGlobalAchievements) {
+      saveGlobalAchievements(cloneAchievements(globalUnlockedAchievements.value));
+    }
+
     unreadAchievementsCount.value = sanitizeUnreadCount(
       snapshot.unreadAchievementsCount,
-      unlockedAchievements.value.length
+      sessionUnlockedAchievements.value.length
     );
     unreadInventoryCount.value = sanitizeUnreadCount(
       snapshot.unreadInventoryCount,
@@ -335,7 +374,7 @@ export function useGameSession() {
 
     if (targetScreen.achievementOnEnter) {
       const unlockedAchievement = normalizeAchievement(targetScreen.achievementOnEnter);
-      const exists = unlockedAchievements.value.find(
+      const exists = sessionUnlockedAchievements.value.find(
         (achievement) => achievement.id === unlockedAchievement.id
       );
 
@@ -351,7 +390,10 @@ export function useGameSession() {
     isGrzeniaPopupOpen.value = false;
   }
 
-  function setCurrentScreen(screenId: string, options?: { pushHistory?: boolean }): boolean {
+  function setCurrentScreen(
+    screenId: string,
+    options?: { pushHistory?: boolean; resetHistory?: boolean }
+  ): boolean {
     if (!hasScreen(screenId)) {
       return false;
     }
@@ -368,7 +410,9 @@ export function useGameSession() {
       }
     }
 
-    if (targetScreen?.type === "story" && targetScreen.resetHistoryOnEnter) {
+    if (options?.resetHistory) {
+      navigationHistory.value = [screenId];
+    } else if (targetScreen?.type === "story" && targetScreen.resetHistoryOnEnter) {
       navigationHistory.value = [screenId];
     }
 
@@ -381,8 +425,11 @@ export function useGameSession() {
     return true;
   }
 
-  function goToScreen(screenId: string): boolean {
-    return setCurrentScreen(screenId);
+  function goToScreen(
+    screenId: string,
+    options?: { pushHistory?: boolean; resetHistory?: boolean }
+  ): boolean {
+    return setCurrentScreen(screenId, options);
   }
 
   function goBack(): void {
@@ -444,13 +491,16 @@ export function useGameSession() {
 
   function saveAchievementToast(): void {
     if (achievementToast.value) {
-      const exists = unlockedAchievements.value.some(
-        (achievement) => achievement.id === achievementToast.value?.id
-      );
+      const unlockedAchievement = achievementToast.value;
 
-      if (!exists) {
-        unlockedAchievements.value.push(achievementToast.value);
+      if (!sessionUnlockedAchievements.value.some((achievement) => achievement.id === unlockedAchievement.id)) {
+        sessionUnlockedAchievements.value.push(unlockedAchievement);
         unreadAchievementsCount.value += 1;
+      }
+
+      if (!globalUnlockedAchievements.value.some((achievement) => achievement.id === unlockedAchievement.id)) {
+        globalUnlockedAchievements.value.push(unlockedAchievement);
+        saveGlobalAchievements(cloneAchievements(globalUnlockedAchievements.value));
       }
     }
 
@@ -491,7 +541,7 @@ export function useGameSession() {
     unreadAchievementsCount.value = 0;
     unreadInventoryCount.value = 0;
     collectedItems.value = createStarterInventory();
-    unlockedAchievements.value = createStarterAchievements();
+    sessionUnlockedAchievements.value = createStarterAchievements();
     clearGameSessionSnapshot();
   }
 
@@ -512,7 +562,10 @@ export function useGameSession() {
       removeInventoryItem(choice.itemLostOnSelect.id);
     }
 
-    goToScreen(choice.nextScreenId!);
+    const shouldResetHistory =
+      choice.resetHistoryOnSelect || storyScreen.value?.choicePresentation === "image-overlay";
+
+    goToScreen(choice.nextScreenId!, { resetHistory: shouldResetHistory });
   }
 
   function getOverlayChoice(choiceId: string): DemoChoice | undefined {

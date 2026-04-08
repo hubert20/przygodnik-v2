@@ -7,7 +7,7 @@
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
       "heading": "Przeżyj fantastyczną przygodę <br/> i uratuj szkołę!",
-      "description": "Moc Zeszytu Przeznaczenia zagraża przyszłości twojej szkoły. By ją uratować musisz ruszyć na wyprawę pełną tajemnic, przygód i niebezpieczeństw.\n\nPoznaj nowych przyjaciół, zmierz się z fantastycznymi stworzeniami, zbierz magiczne artefakty i odkryj tajemnice szkoły!\n\nPrzygoda czeka!",
+      "description": "Moc Zeszytu Przeznaczenia zagraża przyszłości twojej szkoły. <br/> By ją uratować musisz ruszyć na wyprawę pełną tajemnic, przygód i niebezpieczeństw.<br>Poznaj nowych przyjaciół, zmierz się z fantastycznymi stworzeniami, zbierz magiczne artefakty i odkryj tajemnice szkoły!<br>Przygoda czeka!",
       "image": "s000_welcome_base_desktop_v01.png",
       "primaryActionLabel": "Wejdz do gry!",
       "nextScreenId": "s001"
@@ -584,17 +584,38 @@
         {
           "id": "go-project-room",
           "label": "Do Kanciapy Zarzuconych Projektów",
-          "nextScreenId": "s017"
+          "nextScreenId": "s017",
+          "confirmationPopup": {
+            "title": "To ważny krok!",
+            "body": "Tego wyboru nie będzie można już zmienić. Jesteś pewien swojej decyzji?\nPamiętaj: cokolwiek wybierzesz, damy radę!",
+            "confirmLabel": "Tak, jestem pewien. Ruszajmy!",
+            "cancelLabel": "Zaczekaj, chcę wybrać jeszcze raz.",
+            "icon": "!"
+          }
         },
         {
           "id": "go-locker-zero",
           "label": "Do Szafki Numer 0",
-          "nextScreenId": "s052"
+          "nextScreenId": "s052",
+          "confirmationPopup": {
+            "title": "To ważny krok!",
+            "body": "Tego wyboru nie będzie można już zmienić. Jesteś pewien swojej decyzji?\nPamiętaj: cokolwiek wybierzesz, damy radę!",
+            "confirmLabel": "Tak, jestem pewien. Ruszajmy!",
+            "cancelLabel": "Zaczekaj, chcę wybrać jeszcze raz.",
+            "icon": "!"
+          }
         },
         {
           "id": "go-idea-graveyard",
           "label": "Do Cmentarzyska Pomysłów",
-          "nextScreenId": "s086"
+          "nextScreenId": "s086",
+          "confirmationPopup": {
+            "title": "To ważny krok!",
+            "body": "Tego wyboru nie będzie można już zmienić. Jesteś pewien swojej decyzji?\nPamiętaj: cokolwiek wybierzesz, damy radę!",
+            "confirmLabel": "Tak, jestem pewien. Ruszajmy!",
+            "cancelLabel": "Zaczekaj, chcę wybrać jeszcze raz.",
+            "icon": "!"
+          }
         }
       ],
       "infoPopup": {
@@ -2249,6 +2270,7 @@
         "x": 88,
         "y": 392
       },
+      "resetHistoryOnEnter": true,
       "backScreenId": "s054"
     },
     {
@@ -2529,6 +2551,7 @@
         "x": 88,
         "y": 392
       },
+      "resetHistoryOnEnter": true,
       "backScreenId": "s054"
     },
     {

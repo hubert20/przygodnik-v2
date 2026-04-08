@@ -5,6 +5,16 @@ export interface DemoChoice {
   requiredItemId?: string;
   requiredAchievementId?: string;
   itemLostOnSelect?: InventoryItem;
+  confirmationPopup?: ChoiceConfirmationPopup;
+  resetHistoryOnSelect?: boolean;
+}
+
+export interface ChoiceConfirmationPopup {
+  title: string;
+  body: string;
+  confirmLabel: string;
+  cancelLabel: string;
+  icon?: string;
 }
 
 export interface DemoPopup {
