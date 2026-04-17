@@ -64,12 +64,12 @@ const endingLinksItems = [
 ];
 const endingPartnerItems = ["Sponsorzy", "Fundacja", "Partnerzy projektu"];
 const endingCreatorEntries = [
-  { role: "Scenariusz", name: "Do uzupełnienia" },
-  { role: "Scenariusz", name: "Do uzupełnienia" },
-  { role: "Programowanie", name: "Do uzupełnienia" },
-  { role: "Projekt graficzny", name: "Do uzupełnienia" },
-  { role: "Koordynacja", name: "Do uzupełnienia" },
-  { role: "Konsultacje", name: "Do uzupełnienia" }
+  { role: "Scenariusz", name: "Tomasz Kowalski" },
+  { role: "Programowanie", name: "Hubert Osipowicz" },
+  { role: "Projekt UI", name: "Aleksandra Rudy" },
+  { role: "Projekt graficzny", name: "Adam Kowalski" },
+  { role: "Koordynacja", name: "Anna Łowczowska" },
+  { role: "Wsparcie merytoryczne", name: "Julia Barszczewska" }
 ];
 const isCompactViewport = computed(() => viewportWidth.value <= 1024);
 const isMobileLandscapeViewport = computed(
@@ -98,6 +98,7 @@ const usesCenteredOverlayLayout = computed(() => {
 
   return layout === "l016" || layout === "l017" || layout === "l018";
 });
+const handIconImage = computed(() => resolveImage("hand-icon.png"));
 const backpackImage = computed(() => resolveImage("plecak.png"));
 const partnerLogosImage = computed(() => resolveImage("tkmax-ap-logo.png"));
 const isInitialLoaderVisible = ref(true);
@@ -131,11 +132,36 @@ const summaryPlayerName = computed(() => playerName.value.trim() || "Nie podano"
 const summaryPlayerGenderLabel = computed(() =>
   playerGender.value === "female" ? "Dziewczynka" : "Chłopiec"
 );
+const endingFinaleHeroCopy = computed(() =>
+  playerGender.value === "female"
+    ? "Ukończyłaś przygodę! Jesteś prawdziwą bohaterką!"
+    : "Ukończyłeś przygodę! Jesteś prawdziwym bohaterem!"
+);
+const endingAchievementSlots = computed(() => {
+  const totalSlots = totalAchievementsCount.value;
+  const unlockedWithIcons = unlockedAchievements.value
+    .filter((achievement) => !!achievement.icon)
+    .slice(0, totalSlots);
+
+  return Array.from({ length: totalSlots }, (_, index) => {
+    const unlockedAchievement = unlockedWithIcons[index];
+
+    return {
+      id: unlockedAchievement?.id ?? `locked-achievement-${index + 1}`,
+      icon: unlockedAchievement?.icon || "🔑",
+      label: unlockedAchievement?.label || "Nieodblokowane osiągnięcie",
+      unlocked: !!unlockedAchievement
+    };
+  });
+});
 const summaryStoredScreenId = computed(
   () => endingSessionSnapshot.value?.currentScreenId ?? currentScreen.value.id
 );
 const activeChoiceConfirmation = computed(
   () => pendingChoiceConfirmation.value?.confirmationPopup ?? null
+);
+const hasPendingRewardToast = computed(
+  () => !!itemToast.value || !!itemLostToast.value || !!achievementToast.value
 );
 
 function resolveImage(imageName: string): string {
@@ -186,7 +212,18 @@ async function preloadImage(src: string): Promise<void> {
   });
 }
 
-function getOverlayAreaStyle(overlay: ChoiceOverlay): CSSProperties {
+function getOverlayAreaStyle(overlay: ChoiceOverlay, overlayIndex: number): CSSProperties {
+  if (usesCenteredOverlayLayout.value && visibleChoiceOverlays.value.length) {
+    const overlayCount = visibleChoiceOverlays.value.length;
+
+    return {
+      left: `calc(${overlayIndex} * (100% / ${overlayCount}))`,
+      top: `${overlay.y}px`,
+      width: `calc(100% / ${overlayCount})`,
+      height: `${overlay.height}px`
+    };
+  }
+
   return {
     left: `${overlay.x}px`,
     top: `${overlay.y}px`,
@@ -221,6 +258,10 @@ function handleStartGame(): void {
 }
 
 function handleBack(): void {
+  if (hasPendingRewardToast.value) {
+    return;
+  }
+
   isMenuOpen.value = false;
   goBack();
 }
@@ -239,6 +280,10 @@ function openGameMenu(): void {
 }
 
 function requestStoryChoice(choice: DemoChoice): void {
+  if (hasPendingRewardToast.value) {
+    return;
+  }
+
   if (choice.confirmationPopup) {
     pendingChoiceConfirmation.value = choice;
     return;
@@ -248,6 +293,10 @@ function requestStoryChoice(choice: DemoChoice): void {
 }
 
 function requestOverlayChoice(choiceId: string): void {
+  if (hasPendingRewardToast.value) {
+    return;
+  }
+
   const choice = getOverlayChoice(choiceId);
 
   if (!choice) {
@@ -262,7 +311,7 @@ function confirmPendingChoice(): void {
 
   pendingChoiceConfirmation.value = null;
 
-  if (!choice) {
+  if (!choice || hasPendingRewardToast.value) {
     return;
   }
 
@@ -312,7 +361,11 @@ watch(
 </script>
 
 <template>
-  <main class="page" :class="{ 'page--hero-surface': usesHeroHeaderLayout }">
+  <main
+    class="page"
+    :class="{ 'page--hero-surface': usesHeroHeaderLayout, 'page--story-surface': !!storyScreen && !isEndingSummaryScreen }"
+    :style="{ '--overlay-hand-icon': `url('${handIconImage}')` }"
+  >
     <div v-if="isInitialLoaderVisible" class="startup-loader">
       <div class="startup-loader-card">
         <div class="startup-loader-spinner" aria-hidden="true"></div>
@@ -324,16 +377,12 @@ watch(
     <div v-if="isMobilePortraitViewport" class="orientation-overlay" role="dialog" aria-modal="true">
       <div class="orientation-overlay-card">
         <strong>Obróć telefon poziomo</strong>
-        <p>Gra najlepiej działa w widoku landscape na telefonie albo na komputerze.</p>
+        <p>Gra działa najlepiej, gdy obrócisz telefon poziomo lub grasz na komputerze.</p>
       </div>
     </div>
 
-    <button
-      v-if="!usesHeroHeaderLayout"
-      class="menu-toggle page-menu-toggle"
-      @click="isMenuOpen = !isMenuOpen"
-      aria-label="Menu"
-    >
+    <button v-if="!usesHeroHeaderLayout" class="menu-toggle page-menu-toggle" @click="isMenuOpen = !isMenuOpen"
+      aria-label="Menu">
       <span></span>
       <span></span>
       <span></span>
@@ -346,13 +395,10 @@ watch(
       </button>
     </aside>
 
-    <section
-      class="game-frame"
-      :class="{
-        'story-frame': !!storyScreen && !isEndingSummaryScreen,
-        'game-frame--hero': usesHeroHeaderLayout
-      }"
-    >
+    <section class="game-frame" :class="{
+      'story-frame': !!storyScreen && !isEndingSummaryScreen,
+      'game-frame--hero': usesHeroHeaderLayout
+    }">
       <header v-if="shouldShowFrameHeader" class="game-header" :class="{ 'game-header--hero': usesHeroHeaderLayout }">
         <div class="brand-block">
           <h1>{{ currentScreen.title }}</h1>
@@ -361,12 +407,8 @@ watch(
         <div class="logos">
           <img class="logos-image" :src="partnerLogosImage" alt="TK Maxx i Akademia Przyszlosci" />
         </div>
-        <button
-          v-if="usesHeroHeaderLayout"
-          class="menu-toggle hero-menu-toggle"
-          @click="isMenuOpen = !isMenuOpen"
-          aria-label="Menu"
-        >
+        <button v-if="usesHeroHeaderLayout" class="menu-toggle hero-menu-toggle" @click="isMenuOpen = !isMenuOpen"
+          aria-label="Menu">
           <span></span>
           <span></span>
           <span></span>
@@ -375,21 +417,14 @@ watch(
 
       <section v-if="welcomeScreen" class="screen-content framed-screen welcome-screen">
         <div class="welcome-layout">
-          <img
-            class="welcome-image"
-            :src="resolveImage(welcomeScreen.image)"
-            alt="Ekran powitalny Przygodnika"
-          />
+          <img class="welcome-image" :src="resolveImage(welcomeScreen.image)" alt="Ekran powitalny Przygodnika" />
           <div class="welcome-copy">
             <h2 v-html="welcomeScreen.heading"></h2>
             <p v-html="welcomeScreen.description"></p>
           </div>
         </div>
-        <button
-          class="primary-cta"
-          :disabled="!hasScreen(welcomeScreen.nextScreenId)"
-          @click="navigateToScreen(welcomeScreen.nextScreenId)"
-        >
+        <button class="primary-cta" :disabled="!hasScreen(welcomeScreen.nextScreenId)"
+          @click="navigateToScreen(welcomeScreen.nextScreenId)">
           {{ welcomeScreen.primaryActionLabel }}
         </button>
       </section>
@@ -402,38 +437,22 @@ watch(
             <label class="field-label" for="player-name">
               {{ introScreen.nameLabel }}
             </label>
-            <input
-              id="player-name"
-              v-model="playerName"
-              class="text-input"
-              :placeholder="introScreen.namePlaceholder"
-              type="text"
-            />
+            <input id="player-name" v-model="playerName" class="text-input" :placeholder="introScreen.namePlaceholder"
+              type="text" />
 
             <p class="field-label gender-label">{{ introScreen.genderLabel }}</p>
             <div class="gender-options">
-              <label
-                v-for="option in introScreen.genderOptions"
-                :key="option.value"
-                class="radio-option"
-              >
+              <label v-for="option in introScreen.genderOptions" :key="option.value" class="radio-option">
                 <input v-model="playerGender" type="radio" :value="option.value" />
                 <span>{{ option.label }}</span>
               </label>
             </div>
           </div>
 
-          <img
-            class="intro-image"
-            :src="resolveImage(introScreen.image)"
-            alt="Wybór protagonistki"
-          />
+          <img class="intro-image" :src="resolveImage(introScreen.image)" alt="Wybór protagonistki" />
         </div>
-        <button
-          class="primary-cta"
-          :disabled="!playerName.trim() || !hasScreen(introScreen.nextScreenId)"
-          @click="handleStartGame"
-        >
+        <button class="primary-cta" :disabled="!playerName.trim() || !hasScreen(introScreen.nextScreenId)"
+          @click="handleStartGame">
           {{ introScreen.primaryActionLabel }}
         </button>
       </section>
@@ -441,9 +460,28 @@ watch(
       <section v-if="isEndingSummaryScreen" class="screen-content framed-screen ending-finale-screen">
         <div class="ending-finale-layout">
           <div class="ending-finale-card">
-            <h2>Gratulacje!</h2>
-            <p>Ukończyłeś/aś przygodę! Jesteś prawdziwym bohaterem!</p>
-            <div class="ending-finale-trophy" aria-hidden="true">🏆</div>
+            <h2>Gratulacje {{ summaryPlayerName }}!</h2>
+            <p>{{ endingFinaleHeroCopy }}</p>
+            <section class="ending-finale-achievements">
+              <div class="ending-finale-achievements-layout">
+                <div class="ending-finale-achievements-bag" aria-hidden="true">
+                  <img :src="backpackImage" alt="" />
+                </div>
+                <div class="ending-finale-achievements-copy">
+                  <h3>Odblokowane osiągnięcia</h3>
+                  <strong>{{ visibleUnlockedAchievements.length }}/{{ totalAchievementsCount }}</strong>
+                  <p>
+                    Jeśli chcesz zdobyć wszystkie osiągnięcia, spróbuj przejść grę wybierając inną ścieżkę.
+                  </p>
+                </div>
+                <div class="ending-finale-achievements-grid">
+                  <span v-for="slot in endingAchievementSlots" :key="slot.id" class="ending-finale-achievement-slot"
+                    :class="{ 'is-unlocked': slot.unlocked }" :title="slot.label" :aria-label="slot.label">
+                    {{ slot.icon }}
+                  </span>
+                </div>
+              </div>
+            </section>
             <div class="ending-finale-actions">
               <button class="ending-finale-button ending-finale-button--primary" @click="handleRestartGame">
                 Graj jeszcze raz!
@@ -452,28 +490,13 @@ watch(
                 Menu gry
               </button>
             </div>
-            <section v-if="visibleUnlockedAchievements.length" class="ending-finale-achievements">
-              <h3>Twoja kolekcja osiągnięć</h3>
-              <p>
-                {{ visibleUnlockedAchievements.length }} / {{ totalAchievementsCount }} odblokowanych
-              </p>
-              <div class="ending-finale-achievements-row">
-                <span
-                  v-for="achievement in visibleUnlockedAchievements"
-                  :key="achievement.id"
-                  class="ending-summary-mini-icon ending-summary-mini-icon--achievement"
-                  :title="achievement.label"
-                >
-                  {{ achievement.icon }}
-                </span>
-              </div>
-            </section>
           </div>
 
           <section class="ending-creators">
             <h3>Twórcy</h3>
             <div class="ending-creators-grid">
-              <article v-for="(entry, index) in endingCreatorEntries" :key="`${entry.role}-${index}`" class="ending-creator-entry">
+              <article v-for="(entry, index) in endingCreatorEntries" :key="`${entry.role}-${index}`"
+                class="ending-creator-entry">
                 <span class="ending-creator-role">{{ entry.role }}</span>
                 <span class="ending-creator-name">{{ entry.name }}</span>
               </article>
@@ -567,303 +590,211 @@ watch(
 
       <section v-else-if="storyScreen" class="screen-content story-screen">
         <div class="comic-stage" :style="storyViewportStyle">
-        <Transition name="story-step" mode="out-in">
-        <div class="story-step-shell" :key="currentScreen.id">
-        <div
-          class="comic-wrapper"
-          :class="{ 'overlay-choice-scene': usesImageOverlayChoices }"
-          :style="storyWrapperStyle"
-        >
-          <img
-            class="story-image"
-            :src="resolveImage(getStoryImageName(storyScreen))"
-            :alt="`Scena ${storyScreen.id}`"
-          />
+          <Transition name="story-step" mode="out-in">
+            <div class="story-step-shell" :key="currentScreen.id">
+              <div class="comic-wrapper" :class="{ 'overlay-choice-scene': usesImageOverlayChoices }"
+                :style="storyWrapperStyle">
+                <img class="story-image" :src="resolveImage(getStoryImageName(storyScreen))"
+                  :alt="`Scena ${storyScreen.id}`" />
 
-          <button
-            v-if="
-              storyScreen.hotspot.width > 0 &&
-              storyScreen.hotspot.height > 0 &&
-              (storyScreen.infoPopup.title || storyScreen.infoPopup.body)
-            "
-            class="grzenia-hotspot"
-            :style="{
-              left: `${storyScreen.hotspot.x}px`,
-              top: `${storyScreen.hotspot.y}px`,
-              width: `${storyScreen.hotspot.width}px`,
-              height: `${storyScreen.hotspot.height}px`
-            }"
-            @click="isGrzeniaPopupOpen = !isGrzeniaPopupOpen"
-            :aria-label="
-              storyScreen.infoPopup.title
-                ? `Pokaż popup: ${storyScreen.infoPopup.title}`
-                : 'Pokaż popup'
-            "
-            :title="
-              storyScreen.infoPopup.title
+                <button v-if="
+                  storyScreen.hotspot.width > 0 &&
+                  storyScreen.hotspot.height > 0 &&
+                  (storyScreen.infoPopup.title || storyScreen.infoPopup.body)
+                " class="grzenia-hotspot" :style="{
+                  left: `${storyScreen.hotspot.x}px`,
+                  top: `${storyScreen.hotspot.y}px`,
+                  width: `${storyScreen.hotspot.width}px`,
+                  height: `${storyScreen.hotspot.height}px`
+                }" @click="isGrzeniaPopupOpen = !isGrzeniaPopupOpen" :aria-label="storyScreen.infoPopup.title
+              ? `Pokaż popup: ${storyScreen.infoPopup.title}`
+              : 'Pokaż popup'
+              " :title="storyScreen.infoPopup.title
                 ? `Kliknij, aby otworzyć popup: ${storyScreen.infoPopup.title}`
                 : 'Kliknij, aby otworzyć popup'
-            "
-            :aria-pressed="isGrzeniaPopupOpen"
-          ></button>
+                " :aria-pressed="isGrzeniaPopupOpen"></button>
 
-          <div
-            v-if="
-              isGrzeniaPopupOpen &&
-              (storyScreen.infoPopup.title || storyScreen.infoPopup.body)
-            "
-            class="info-popup"
-            :style="{
-              left: `${storyScreen.popupPosition.x}px`,
-              top: `${storyScreen.popupPosition.y}px`
-            }"
-          >
-            <button class="popup-close" @click="isGrzeniaPopupOpen = false">&times;</button>
-            <strong>{{ storyScreen.infoPopup.title }}</strong>
-            <p>{{ storyScreen.infoPopup.body }}</p>
-          </div>
-
-          <div v-if="shouldShowResourceButtons" class="bottom-ui left">
-            <button class="icon-button backpack-button" @click="toggleInventory">
-              <img
-                class="backpack-icon-image"
-                :src="backpackImage"
-                alt="Plecak"
-              />
-              <span v-if="unreadInventoryCount > 0" class="notification-badge inventory-badge">
-                {{ unreadInventoryCount > 9 ? "9+" : unreadInventoryCount }}
-              </span>
-            </button>
-            <button
-              class="icon-button trophy-button"
-              @click="toggleAchievements"
-              aria-label="Pokaz nagrody za osiagniecia"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  d="M8 4.5h8v2.25a4 4 0 0 1-8 0V4.5Z"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linejoin="round"
-                  stroke-width="1.8"
-                />
-                <path
-                  d="M8 6H5.5a1 1 0 0 0-1 1c0 2.2 1.8 4 4 4h.5"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linejoin="round"
-                  stroke-width="1.8"
-                />
-                <path
-                  d="M16 6h2.5a1 1 0 0 1 1 1c0 2.2-1.8 4-4 4H15"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linejoin="round"
-                  stroke-width="1.8"
-                />
-                <path
-                  d="M12 10.75v3.75"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-width="1.8"
-                />
-                <path
-                  d="M9 19.5h6"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-width="1.8"
-                />
-                <path
-                  d="M9.75 15.5h4.5v1.5a1 1 0 0 1-1 1h-2.5a1 1 0 0 1-1-1v-1.5Z"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linejoin="round"
-                  stroke-width="1.8"
-                />
-              </svg>
-              <span v-if="unreadAchievementsCount > 0" class="notification-badge">
-                {{ unreadAchievementsCount > 9 ? "9+" : unreadAchievementsCount }}
-              </span>
-            </button>
-          </div>
-
-          <div class="bottom-ui right">
-            <button v-if="shouldShowBackButton" class="back-button" :disabled="!canGoBack" @click="handleBack">
-              <span class="back-button-arrow" aria-hidden="true">&larr;</span>
-              <span>Cofnij</span>
-            </button>
-            <template v-if="!usesImageOverlayChoices">
-            <button
-              v-for="choice in visibleStoryChoices"
-              :key="choice.id"
-              class="choice-button"
-              :disabled="!hasScreen(choice.nextScreenId)"
-              @click="requestStoryChoice(choice)"
-            >
-              {{ choice.label }}
-            </button>
-            </template>
-          </div>
-
-          <div
-            v-if="usesImageOverlayChoices && visibleChoiceOverlays.length"
-            class="choice-overlay-layer"
-            :class="{ 'choice-overlay-layer--centered': usesCenteredOverlayLayout }"
-          >
-            <button
-              v-for="overlay in visibleChoiceOverlays"
-              :key="overlay.choiceId"
-              class="overlay-choice-button"
-              :class="{ 'overlay-choice-button--centered': usesCenteredOverlayLayout }"
-              :style="getOverlayAreaStyle(overlay)"
-              :title="getOverlayChoice(overlay.choiceId)?.label ?? ''"
-              :aria-label="getOverlayChoice(overlay.choiceId)?.label ?? ''"
-              :disabled="!hasScreen(getOverlayChoice(overlay.choiceId)?.nextScreenId ?? null)"
-              @click="requestOverlayChoice(overlay.choiceId)"
-            >
-              <span
-                class="overlay-choice-chip"
-                :style="getOverlayChipStyle(overlay)"
-              >
-                {{ getOverlayChoice(overlay.choiceId)?.label }}
-              </span>
-            </button>
-          </div>
-
-          <aside class="inventory-panel" :class="{ open: isInventoryOpen }">
-            <div class="inventory-card">
-              <div class="overlay-panel-header inventory-header">
-                <strong>Plecak</strong>
-                <button class="panel-close-button" @click="closeInventory" aria-label="Zamknij plecak">
-                  &times;
-                </button>
-              </div>
-              <div class="inventory-items">
-                <div
-                  v-for="item in collectedItems"
-                  :key="item.id"
-                  class="inventory-slot"
-                  :class="{ locked: item.locked, empty: !item.icon }"
-                  :title="item.label"
-                >
-                  <span v-if="item.icon" class="item-icon">{{ item.icon }}</span>
+                <div v-if="
+                  isGrzeniaPopupOpen &&
+                  (storyScreen.infoPopup.title || storyScreen.infoPopup.body)
+                " class="info-popup" :style="{
+                  left: `${storyScreen.popupPosition.x}px`,
+                  top: `${storyScreen.popupPosition.y}px`
+                }">
+                  <button class="popup-close" @click="isGrzeniaPopupOpen = false">&times;</button>
+                  <strong>{{ storyScreen.infoPopup.title }}</strong>
+                  <p>{{ storyScreen.infoPopup.body }}</p>
                 </div>
-              </div>
-            </div>
-          </aside>
 
-          <aside class="achievement-panel" :class="{ open: isAchievementsOpen }">
-            <div class="achievement-card">
-              <div class="overlay-panel-header achievement-header">
-                <strong>Osiagniecia</strong>
-                <button
-                  class="panel-close-button"
-                  @click="closeAchievements"
-                  aria-label="Zamknij osiagniecia"
-                >
-                  &times;
-                </button>
-              </div>
-              <div class="achievement-progress">
-                <div class="achievement-progress-copy">
-                  {{ unlockedAchievements.length }} / {{ totalAchievementsCount }}
+                <div v-if="shouldShowResourceButtons" class="bottom-ui left">
+                  <button class="icon-button backpack-button" @click="toggleInventory">
+                    <img class="backpack-icon-image" :src="backpackImage" alt="Plecak" />
+                    <span v-if="unreadInventoryCount > 0" class="notification-badge inventory-badge">
+                      {{ unreadInventoryCount > 9 ? "9+" : unreadInventoryCount }}
+                    </span>
+                  </button>
+                  <button class="icon-button trophy-button" @click="toggleAchievements"
+                    aria-label="Pokaz nagrody za osiagniecia">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M8 4.5h8v2.25a4 4 0 0 1-8 0V4.5Z" fill="none" stroke="currentColor"
+                        stroke-linejoin="round" stroke-width="1.8" />
+                      <path d="M8 6H5.5a1 1 0 0 0-1 1c0 2.2 1.8 4 4 4h.5" fill="none" stroke="currentColor"
+                        stroke-linejoin="round" stroke-width="1.8" />
+                      <path d="M16 6h2.5a1 1 0 0 1 1 1c0 2.2-1.8 4-4 4H15" fill="none" stroke="currentColor"
+                        stroke-linejoin="round" stroke-width="1.8" />
+                      <path d="M12 10.75v3.75" fill="none" stroke="currentColor" stroke-linecap="round"
+                        stroke-width="1.8" />
+                      <path d="M9 19.5h6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.8" />
+                      <path d="M9.75 15.5h4.5v1.5a1 1 0 0 1-1 1h-2.5a1 1 0 0 1-1-1v-1.5Z" fill="none"
+                        stroke="currentColor" stroke-linejoin="round" stroke-width="1.8" />
+                    </svg>
+                    <span v-if="unreadAchievementsCount > 0" class="notification-badge">
+                      {{ unreadAchievementsCount > 9 ? "9+" : unreadAchievementsCount }}
+                    </span>
+                  </button>
                 </div>
-                <div class="achievement-progress-track">
-                  <div
-                    class="achievement-progress-fill"
-                    :style="{ width: `${(unlockedAchievements.length / totalAchievementsCount) * 100}%` }"
-                  ></div>
+
+                <div class="bottom-ui right">
+                  <button v-if="shouldShowBackButton" class="back-button"
+                    :disabled="!canGoBack || hasPendingRewardToast" @click="handleBack">
+                    <span class="back-button-arrow" aria-hidden="true">&larr;</span>
+                    <span>Cofnij</span>
+                  </button>
+                  <template v-if="!usesImageOverlayChoices">
+                    <button v-for="choice in visibleStoryChoices" :key="choice.id" class="choice-button"
+                      :disabled="!hasScreen(choice.nextScreenId) || hasPendingRewardToast"
+                      @click="requestStoryChoice(choice)">
+                      {{ choice.label }}
+                    </button>
+                  </template>
                 </div>
-              </div>
-              <div class="achievement-list">
-                <article
-                  v-for="item in unlockedAchievements"
-                  :key="item.id"
-                  class="achievement-entry"
-                >
-                  <div class="achievement-entry-icon">{{ item.icon }}</div>
-                  <div class="achievement-entry-copy">
-                    <strong>{{ item.label }}</strong>
-                    <p>{{ item.description }}</p>
+
+                <div v-if="usesImageOverlayChoices && visibleChoiceOverlays.length" class="choice-overlay-layer"
+                  :class="{ 'choice-overlay-layer--centered': usesCenteredOverlayLayout }">
+                  <button v-for="(overlay, overlayIndex) in visibleChoiceOverlays" :key="overlay.choiceId"
+                    class="overlay-choice-button"
+                    :class="{ 'overlay-choice-button--centered': usesCenteredOverlayLayout }"
+                    :style="getOverlayAreaStyle(overlay, overlayIndex)"
+                    :title="getOverlayChoice(overlay.choiceId)?.label ?? ''"
+                    :aria-label="getOverlayChoice(overlay.choiceId)?.label ?? ''"
+                    :disabled="!hasScreen(getOverlayChoice(overlay.choiceId)?.nextScreenId ?? null) || hasPendingRewardToast"
+                    @click="requestOverlayChoice(overlay.choiceId)">
+                    <span class="overlay-choice-hand" :style="{ backgroundImage: `url('${handIconImage}')` }" aria-hidden="true"></span>
+                  </button>
+                </div>
+
+                <aside class="inventory-panel" :class="{ open: isInventoryOpen }">
+                  <div class="inventory-card">
+                    <div class="overlay-panel-header inventory-header">
+                      <strong>Plecak</strong>
+                      <button class="panel-close-button" @click="closeInventory" aria-label="Zamknij plecak">
+                        &times;
+                      </button>
+                    </div>
+                    <div class="inventory-items">
+                      <div v-for="item in collectedItems" :key="item.id" class="inventory-slot"
+                        :class="{ locked: item.locked, empty: !item.icon }" :title="item.label">
+                        <span v-if="item.icon" class="item-icon">{{ item.icon }}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div class="achievement-entry-mark">&#127942;</div>
-                </article>
-              </div>
-              <div class="achievement-locked-box">
-                <div class="achievement-locked-title">NIEODBLOCKOWANE OSIAGNIECIA</div>
-                <div class="achievement-locked-entry">
-                  <div class="achievement-locked-icon">&#128274;</div>
-                  <div>
-                    <strong>Graj dalej by odblokowac</strong>
-                    <p>Pozostalo {{ remainingLockedAchievementsCount }} osiagniec do odblokowania</p>
+                </aside>
+
+                <aside class="achievement-panel" :class="{ open: isAchievementsOpen }">
+                  <div class="achievement-card">
+                    <div class="overlay-panel-header achievement-header">
+                      <strong>Osiagniecia</strong>
+                      <button class="panel-close-button" @click="closeAchievements" aria-label="Zamknij osiagniecia">
+                        &times;
+                      </button>
+                    </div>
+                    <div class="achievement-progress">
+                      <div class="achievement-progress-copy">
+                        {{ unlockedAchievements.length }} / {{ totalAchievementsCount }}
+                      </div>
+                      <div class="achievement-progress-track">
+                        <div class="achievement-progress-fill"
+                          :style="{ width: `${(unlockedAchievements.length / totalAchievementsCount) * 100}%` }"></div>
+                      </div>
+                    </div>
+                    <div class="achievement-list">
+                      <article v-for="item in unlockedAchievements" :key="item.id" class="achievement-entry">
+                        <div class="achievement-entry-icon">{{ item.icon }}</div>
+                        <div class="achievement-entry-copy">
+                          <strong>{{ item.label }}</strong>
+                          <p>{{ item.description }}</p>
+                        </div>
+                        <div class="achievement-entry-mark">&#127942;</div>
+                      </article>
+                    </div>
+                    <div class="achievement-locked-box">
+                      <div class="achievement-locked-title">NIEODBLOCKOWANE OSIAGNIECIA</div>
+                      <div class="achievement-locked-entry">
+                        <div class="achievement-locked-icon">&#128274;</div>
+                        <div>
+                          <strong>Graj dalej by odblokowac</strong>
+                          <p>Pozostalo {{ remainingLockedAchievementsCount }} osiagniec do odblokowania</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </aside>
+
+                <div v-if="itemToast || itemLostToast || achievementToast" class="reward-stack-overlay">
+                  <div class="reward-stack">
+                    <div v-if="itemToast" class="achievement-toast item-toast">
+                      <div class="achievement-toast-spark">&#10022;</div>
+                      <h3>Zdobyto artefakt!</h3>
+                      <span class="toast-icon item-toast-icon">{{ itemToast.icon }}</span>
+                      <strong>{{ itemToast.label }}</strong>
+                      <p>{{ itemToast.description }}</p>
+                      <button class="toast-action" @click="saveItemToast">Dodaj do plecaka</button>
+                    </div>
+
+                    <div v-if="itemLostToast && !itemToast" class="achievement-toast item-lost-toast">
+                      <div class="achievement-toast-spark">&#10022;</div>
+                      <h3>Utrata artefaktu</h3>
+                      <span class="toast-icon item-lost-toast-icon">{{ itemLostToast.icon }}</span>
+                      <strong>{{ itemLostToast.label }}</strong>
+                      <p>{{ itemLostToast.description }}</p>
+                      <button class="toast-action" @click="saveItemLostToast">Akceptuję utratę</button>
+                    </div>
+
+                    <div v-if="achievementToast && !itemToast && !itemLostToast"
+                      class="achievement-toast achievement-toast-card">
+                      <div class="achievement-toast-spark">&#10022;</div>
+                      <h3>Gratulacje!</h3>
+                      <span class="toast-icon">{{ achievementToast.icon }}</span>
+                      <strong>{{ achievementToast.label }}</strong>
+                      <p>{{ achievementToast.description }}</p>
+                      <button class="toast-action" @click="saveAchievementToast">Zapisz osiagniecie</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div v-if="activeChoiceConfirmation" class="choice-confirmation-overlay" role="dialog" aria-modal="true"
+                  :aria-labelledby="'choice-confirmation-title'">
+                  <div class="choice-confirmation-card">
+                    <div class="choice-confirmation-icon" aria-hidden="true">
+                      {{ activeChoiceConfirmation.icon || "!" }}
+                    </div>
+                    <h3 id="choice-confirmation-title">{{ activeChoiceConfirmation.title }}</h3>
+                    <p>{{ activeChoiceConfirmation.body }}</p>
+                    <div class="choice-confirmation-actions">
+                      <button class="choice-confirmation-button choice-confirmation-button--confirm"
+                        @click="confirmPendingChoice">
+                        {{ activeChoiceConfirmation.confirmLabel }}
+                      </button>
+                      <button class="choice-confirmation-button choice-confirmation-button--cancel"
+                        @click="cancelPendingChoice">
+                        {{ activeChoiceConfirmation.cancelLabel }}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </aside>
-
-          <div v-if="itemToast || itemLostToast || achievementToast" class="reward-stack-overlay">
-            <div class="reward-stack">
-              <div v-if="itemToast" class="achievement-toast item-toast">
-                <div class="achievement-toast-spark">&#10022;</div>
-                <h3>Zdobyto artefakt!</h3>
-                <span class="toast-icon item-toast-icon">{{ itemToast.icon }}</span>
-                <strong>{{ itemToast.label }}</strong>
-                <p>{{ itemToast.description }}</p>
-                <button class="toast-action" @click="saveItemToast">Dodaj do plecaka</button>
-              </div>
-
-              <div v-if="itemLostToast && !itemToast" class="achievement-toast item-lost-toast">
-                <div class="achievement-toast-spark">&#10022;</div>
-                <h3>Utrata artefaktu</h3>
-                <span class="toast-icon item-lost-toast-icon">{{ itemLostToast.icon }}</span>
-                <strong>{{ itemLostToast.label }}</strong>
-                <p>{{ itemLostToast.description }}</p>
-                <button class="toast-action" @click="saveItemLostToast">Akceptuję utratę</button>
-              </div>
-
-              <div
-                v-if="achievementToast && !itemToast && !itemLostToast"
-                class="achievement-toast achievement-toast-card"
-              >
-                <div class="achievement-toast-spark">&#10022;</div>
-                <h3>Gratulacje!</h3>
-                <span class="toast-icon">{{ achievementToast.icon }}</span>
-                <strong>{{ achievementToast.label }}</strong>
-                <p>{{ achievementToast.description }}</p>
-                <button class="toast-action" @click="saveAchievementToast">Zapisz osiagniecie</button>
-              </div>
-            </div>
-          </div>
-
-          <div
-            v-if="activeChoiceConfirmation"
-            class="choice-confirmation-overlay"
-            role="dialog"
-            aria-modal="true"
-            :aria-labelledby="'choice-confirmation-title'"
-          >
-            <div class="choice-confirmation-card">
-              <div class="choice-confirmation-icon" aria-hidden="true">
-                {{ activeChoiceConfirmation.icon || "!" }}
-              </div>
-              <h3 id="choice-confirmation-title">{{ activeChoiceConfirmation.title }}</h3>
-              <p>{{ activeChoiceConfirmation.body }}</p>
-              <div class="choice-confirmation-actions">
-                <button class="choice-confirmation-button choice-confirmation-button--confirm" @click="confirmPendingChoice">
-                  {{ activeChoiceConfirmation.confirmLabel }}
-                </button>
-                <button class="choice-confirmation-button choice-confirmation-button--cancel" @click="cancelPendingChoice">
-                  {{ activeChoiceConfirmation.cancelLabel }}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        </div>
-        </Transition>
+          </Transition>
         </div>
       </section>
     </section>
@@ -871,9 +802,11 @@ watch(
 </template>
 
 <style scoped>
+@import url("https://fonts.googleapis.com/css2?family=Asap:wght@400;500;600;700;800&display=swap");
+
 :global(body) {
   margin: 0;
-  font-family: Inter, Arial, sans-serif;
+  font-family: "Asap", Arial, sans-serif;
   background: #fff;
   overflow-x: hidden;
   overflow-y: auto;
@@ -989,7 +922,7 @@ watch(
   width: min(1280px, calc((100vh - 32px) * 16 / 9), calc(100vw - 32px));
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  background: linear-gradient(-90deg,rgba(148, 200, 134, 1) 0%, rgba(200, 216, 130, 1) 50%, rgba(249, 230, 125, 1) 100%);
+  background: linear-gradient(-90deg, rgba(148, 200, 134, 1) 0%, rgba(200, 216, 130, 1) 50%, rgba(249, 230, 125, 1) 100%);
 }
 
 .game-frame--hero {
@@ -1201,7 +1134,7 @@ watch(
 
 .welcome-copy h2,
 .intro-form h2 {
-font-size: 24px;
+  font-size: 24px;
 }
 
 .welcome-copy p {
@@ -1330,7 +1263,7 @@ font-size: 24px;
 
 .ending-finale-layout {
   width: 100%;
-  max-width: 1000px;
+  max-width: 1100px;
   min-height: 100%;
   display: flex;
   flex-direction: column;
@@ -1340,7 +1273,7 @@ font-size: 24px;
 }
 
 .ending-finale-card {
-  width: min(660px, 100%);
+  width: min(860px, 100%);
   padding: 26px 32px 28px;
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.96);
@@ -1356,83 +1289,137 @@ font-size: 24px;
 }
 
 .ending-finale-card p {
-  margin: 0;
+  margin: 0 0 12px;
   color: #d37a3d;
   font-size: 18px;
   font-weight: 700;
 }
 
-.ending-finale-trophy {
-  width: 76px;
-  height: 76px;
-  margin: 18px auto 20px;
-  border-radius: 999px;
-  display: grid;
-  place-items: center;
-  background: radial-gradient(circle at 30% 30%, #fff0a8, #ffd55a);
-  box-shadow: 0 8px 18px rgba(255, 208, 74, 0.35);
-  font-size: 40px;
-}
-
 .ending-finale-actions {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(2, 300px);
+  justify-content: center;
   gap: 18px;
 }
 
 .ending-finale-achievements {
-  margin-top: 22px;
-  padding-top: 18px;
-  border-top: 1px solid rgba(211, 122, 61, 0.18);
+  margin: 18px 0 20px;
+  padding: 16px 14px;
+  border: 1px solid rgba(240, 199, 105, 0.7);
+  border-radius: 16px;
+  background: rgba(255, 240, 181, 0.42);
 }
 
-.ending-finale-achievements h3 {
+.ending-finale-achievements-layout {
+  display: grid;
+  grid-template-columns: 92px minmax(180px, 1fr) minmax(200px, 240px);
+  gap: 14px;
+  align-items: center;
+}
+
+.ending-finale-achievements-bag {
+  width: 84px;
+  height: 84px;
+  margin: 0 auto;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.48);
+}
+
+.ending-finale-achievements-bag img {
+  width: 62px;
+  height: 62px;
+  object-fit: contain;
+}
+
+.ending-finale-achievements-copy h3 {
   margin: 0;
-  color: #ef7b39;
-  font-size: 20px;
-  font-weight: 900;
+  color: #5a6530;
+  font-size: 18px;
+  font-weight: 800;
 }
 
-.ending-finale-achievements p {
-  margin: 8px 0 0;
-  color: #8c5c40;
-  font-size: 14px;
+.ending-finale-achievements-copy strong {
+  display: block;
+  margin-top: 4px;
+  color: #cf6f2f;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.ending-finale-achievements-copy p {
+  margin: 10px 0 0;
+  color: #6e6f52;
+  font-size: 13px;
+  line-height: 1.35;
   font-weight: 700;
+  text-wrap: balance;
 }
 
-.ending-finale-achievements-row {
-  margin-top: 14px;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+.ending-finale-achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px;
 }
 
+.ending-finale-achievement-slot {
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  border: 1px solid rgba(103, 112, 121, 0.18);
+  display: inline-grid;
+  place-items: center;
+  font-size: 16px;
+  background: rgba(142, 153, 163, 0.12);
+  color: rgba(95, 106, 116, 0.46);
+  filter: grayscale(1);
+  opacity: 0.7;
+}
+
+.ending-finale-achievement-slot.is-unlocked {
+  background: radial-gradient(circle at 30% 30%, #fff6cd, #ffe17f);
+  border-color: rgba(239, 183, 68, 0.6);
+  color: #8c641c;
+  box-shadow: 0 4px 10px rgba(236, 184, 71, 0.28);
+  filter: none;
+  opacity: 1;
+}
+
 .ending-finale-button {
-  min-height: 54px;
-  border-radius: 12px;
+  min-height: 58px;
+  padding: 10px 24px;
+  border-radius: 14px;
   font: inherit;
   font-size: 18px;
-  font-weight: 900;
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: normal;
   cursor: pointer;
 }
 
 .ending-finale-button--primary {
-  border: 2px solid #eea474;
-  background: #ffffff;
-  color: #ef7b39;
-  box-shadow: 0 7px 16px rgba(222, 120, 48, 0.25);
+  border: 2px solid #8dbd2f;
+  background: #a6ce39;
+  color: #ffffff;
+  box-shadow:
+    inset 0 0 0 2px #ffffff,
+    inset 0 0 0 12px #a6ce39,
+    0 8px 0 rgba(52, 86, 36, 0.26);
 }
 
 .ending-finale-button--secondary {
-  border: 2px solid #b3d0e6;
-  background: #ffffff;
-  color: #7aa5c7;
-  box-shadow: 0 7px 16px rgba(121, 165, 199, 0.22);
+  border: 2px solid #6a88c5;
+  background: #7d9bd7;
+  color: #ffffff;
+  box-shadow:
+    inset 0 0 0 2px #ffffff,
+    inset 0 0 0 12px #7d9bd7,
+    0 8px 0 rgba(59, 85, 132, 0.3);
 }
 
 .ending-creators {
-  width: min(720px, 100%);
+  width: min(860px, 100%);
   text-align: center;
 }
 
@@ -1455,8 +1442,8 @@ font-size: 24px;
   grid-template-columns: 170px minmax(0, 1fr);
   border-radius: 12px;
   overflow: hidden;
-  /*box-shadow: 0 8px 18px rgba(72, 97, 124, 0.16);*/
-  background: linear-gradient(90deg,rgba(206, 221, 147, 1) 0%, rgba(255, 255, 255, 0) 100%);
+  border: 2px solid #fff;
+  background: linear-gradient(90deg, rgba(206, 221, 147, 0) 0%, rgba(255, 255, 255, 1) 100%);
 }
 
 .ending-creator-role,
@@ -1470,11 +1457,11 @@ font-size: 24px;
 }
 
 .ending-creator-role {
-  color: #4f6648;
+  color: #1D4959;
 }
 
 .ending-creator-name {
-  color: #fff;
+  color: #1D4959;
 }
 
 .ending-finale-footer {
@@ -1602,7 +1589,7 @@ font-size: 24px;
   margin: 0;
 }
 
-.ending-summary-list div + div {
+.ending-summary-list div+div {
   margin-top: 10px;
 }
 
@@ -1705,26 +1692,16 @@ font-size: 24px;
   width: 230px;
   height: 335px;
   z-index: 2;
-  border: 2px dashed rgba(255, 227, 130, 0.95);
+  border: 0;
   border-radius: 20px;
-  background: rgba(255, 227, 130, 0.16);
-  box-shadow:
-    inset 0 0 0 2px rgba(255, 255, 255, 0.9),
-    0 10px 24px rgba(46, 64, 86, 0.16);
+  background: transparent;
+  box-shadow: none;
   cursor: pointer;
-  transition:
-    transform 0.18s ease,
-    box-shadow 0.18s ease,
-    background 0.18s ease;
+  transition: transform 0.18s ease;
 }
 
 .grzenia-hotspot::before {
-  content: "";
-  position: absolute;
-  inset: 8px;
-  border: 2px solid rgba(255, 255, 255, 0.85);
-  border-radius: 14px;
-  pointer-events: none;
+  content: none;
 }
 
 .grzenia-hotspot::after {
@@ -1751,17 +1728,11 @@ font-size: 24px;
 
 .grzenia-hotspot:hover {
   transform: translateY(-2px);
-  background: rgba(255, 227, 130, 0.24);
-  box-shadow:
-    inset 0 0 0 2px rgba(255, 255, 255, 0.95),
-    0 14px 28px rgba(46, 64, 86, 0.2);
 }
 
 .grzenia-hotspot[aria-pressed="true"] {
-  background: rgba(255, 227, 130, 0.28);
-  box-shadow:
-    inset 0 0 0 2px rgba(255, 255, 255, 0.95),
-    0 14px 28px rgba(46, 64, 86, 0.22);
+  background: transparent;
+  box-shadow: none;
 }
 
 @keyframes hotspot-pulse {
@@ -1778,6 +1749,26 @@ font-size: 24px;
   100% {
     transform: translate(-50%, -50%) scale(0.96);
     box-shadow: 0 0 0 0 rgba(255, 227, 130, 0);
+  }
+}
+
+@keyframes overlay-hand-pulse {
+  0% {
+    transform: scale(0.92);
+    filter: drop-shadow(0 6px 10px rgba(8, 20, 29, 0.24));
+    opacity: 0.92;
+  }
+
+  50% {
+    transform: scale(1);
+    filter: drop-shadow(0 10px 18px rgba(8, 20, 29, 0.38));
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(0.92);
+    filter: drop-shadow(0 6px 10px rgba(8, 20, 29, 0.24));
+    opacity: 0.92;
   }
 }
 
@@ -1802,8 +1793,8 @@ font-size: 24px;
 
 .info-popup p {
   margin: 0;
-  font-size: 14px;
-  line-height: 1.45;
+  font-size: 16px;
+  line-height: 1.3;
 }
 
 .popup-close {
@@ -1822,6 +1813,7 @@ font-size: 24px;
   display: flex;
   align-items: center;
   gap: 10px;
+  z-index: 40;
 }
 
 .bottom-ui.left {
@@ -1837,7 +1829,7 @@ font-size: 24px;
 .icon-button {
   position: relative;
   width: 70px;
-  height:70px;
+  height: 70px;
   border-radius: 14px;
   border: 2px solid #c8d3e7;
   background: #fff;
@@ -1963,36 +1955,54 @@ font-size: 24px;
   position: absolute;
   inset: 0;
   pointer-events: none;
+  z-index: 12;
 }
 
 .overlay-choice-button {
   position: absolute;
-  display: flex;
-  align-items: flex-start;
-  justify-content: flex-start;
+  display: block;
   padding: 0;
   border: none;
   background: rgba(255, 255, 255, 0);
   box-shadow: none;
-  border-radius: 18px;
   cursor: pointer;
   pointer-events: auto;
+  overflow: visible;
   transition:
     background 0.18s ease,
     box-shadow 0.18s ease;
 }
 
+.overlay-choice-hand {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  width: 60px;
+  height: 60px;
+  display: block;
+  border: 2px solid #ffffff;
+  border-radius: 999px;
+  background-color: #85cee6;
+  box-shadow: 0 10px 20px rgba(46, 64, 86, 0.28);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 40px 40px;
+  pointer-events: none;
+  transform-origin: center;
+  animation: overlay-hand-pulse 1.15s ease-in-out infinite;
+}
+
 .overlay-choice-button:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(133, 206, 230, 0.72);
   box-shadow:
-    inset 0 0 0 2px rgba(255, 255, 255, 0.68),
-    inset 0 0 0 8px rgba(255, 227, 130, 0.2);
+    inset 0 0 0 2px rgba(255, 255, 255, 0.78),
+    inset 0 0 0 10px rgba(133, 206, 230, 0.14);
 }
 
 .choice-overlay-layer--centered .overlay-choice-button--centered {
-  align-items: center;
-  justify-content: center;
+  border-radius: 0;
 }
+
 
 .overlay-choice-chip {
   min-width: 240px;
@@ -2019,6 +2029,11 @@ font-size: 24px;
   opacity: 0.72;
   cursor: not-allowed;
   box-shadow: none;
+}
+
+.overlay-choice-button:disabled .overlay-choice-hand {
+  opacity: 0.6;
+  animation: none;
 }
 
 .overlay-choice-button:disabled:hover {
@@ -2363,13 +2378,17 @@ font-size: 24px;
 
 .toast-action {
   border: none;
-  border-radius: 999px;
-  background: linear-gradient(180deg, #a8d88f 0%, #88c66d 100%);
+  border-radius: 14px;
+  background: #a6ce39;
+  /* background: linear-gradient(180deg, #a8d88f 0%, #88c66d 100%); */
   color: #ffffff;
   font-weight: 800;
   padding: 12px 22px;
-  box-shadow: 0 10px 18px rgba(136, 198, 109, 0.35);
+  /* box-shadow: 0 10px 18px rgba(136, 198, 109, 0.35); */
   cursor: pointer;
+  font-size: 16px;
+  border: 2px solid #8dbd2f;
+  box-shadow: inset 0 0 0 2px #ffffff, inset 0 0 0 12px #a6ce39, 0 8px 0 rgba(52, 86, 36, 0.26);
 }
 
 .choice-confirmation-overlay {
@@ -2447,7 +2466,8 @@ font-size: 24px;
   box-shadow: inset 0 0 0 2px #f0caa8;
 }
 
-@media (max-width: 980px), (max-height: 500px) {
+@media (max-width: 980px),
+(max-height: 500px) {
   .page {
     padding: 6px;
   }
@@ -2526,6 +2546,86 @@ font-size: 24px;
     top: 14px;
   }
 
+  .bottom-ui.left {
+    left: 12px;
+    bottom: -8px;
+  }
+
+  .bottom-ui.right {
+    right: 12px;
+    bottom: 2px;
+  }
+
+  .icon-button {
+    width: 84px;
+    height: 84px;
+    border-radius: 16px;
+  }
+
+  .icon-button svg {
+    width: 60px;
+    height: 60px;
+  }
+
+  .backpack-icon-image {
+    width: 60px;
+    height: 60px;
+  }
+
+  .notification-badge {
+    top: -8px;
+    right: -8px;
+    min-width: 34px;
+    height: 34px;
+    font-size: 13px;
+  }
+
+  .back-button {
+    min-width: 88px;
+    height: 66px;
+    border-radius: 16px;
+    gap: 8px;
+    flex-direction: row;
+  }
+
+  .back-button span {
+    font-size: 14px;
+  }
+
+  .back-button-arrow {
+    font-size: 18px;
+  }
+
+  .info-popup {
+    width: min(350px, calc(100vw - 24px));
+  }
+
+  .info-popup p {
+    font-size: 20px;
+    line-height: 1.5;
+  }
+
+  .grzenia-hotspot::after {
+    width: 54px;
+    height: 54px;
+    font-size: 28px;
+  }
+
+  .choice-button {
+    min-width: 280px;
+    min-height: 70px;
+    padding: 12px 24px;
+    font-size: 23px;
+  }
+
+  .overlay-choice-hand {
+    right: 8px;
+    bottom: 8px;
+    width: 82px;
+    height: 82px;
+    background-size: 45px;
+  }
+
   .ending-finale-layout {
     gap: 18px;
   }
@@ -2543,24 +2643,52 @@ font-size: 24px;
     font-size: 16px;
   }
 
-  .ending-finale-trophy {
-    width: 68px;
-    height: 68px;
-    margin: 16px auto 18px;
-    font-size: 34px;
-  }
-
   .ending-finale-actions {
     gap: 12px;
   }
 
   .ending-finale-achievements {
     margin-top: 18px;
-    padding-top: 16px;
+    padding: 14px 10px;
   }
 
-  .ending-finale-achievements h3 {
+  .ending-finale-achievements-layout {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .ending-finale-achievements-bag {
+    width: 70px;
+    height: 70px;
+  }
+
+  .ending-finale-achievements-bag img {
+    width: 52px;
+    height: 52px;
+  }
+
+  .ending-finale-achievements-copy h3 {
     font-size: 18px;
+  }
+
+  .ending-finale-achievements-copy strong {
+    font-size: 26px;
+  }
+
+  .ending-finale-achievements-copy p {
+    font-size: 12px;
+  }
+
+  .ending-finale-achievements-grid {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .ending-finale-achievement-slot {
+    width: 26px;
+    height: 26px;
+    font-size: 14px;
   }
 
   .ending-finale-button {
@@ -2598,9 +2726,16 @@ font-size: 24px;
     margin-top: 8px;
   }
 
-  .welcome-image,
+  .welcome-layout {
+    grid-template-columns: 1fr 2fr;
+  }
+
   .intro-image {
     max-width: 240px;
+  }
+
+  .welcome-image {
+    max-width: 180px;
   }
 
   .welcome-copy h2,
@@ -2633,101 +2768,241 @@ font-size: 24px;
   }
 
   .primary-cta {
-    min-width: 220px;
-    height: 52px;
-    margin-top: 18px;
-    font-size: 22px;
+    min-width: 200px;
+    height: 44px;
+    margin-top: 5px;
+    font-size: 18px;
+  }
+
+  .inventory-panel {
+    left: 8px;
+    bottom: 106px;
   }
 
   .inventory-card {
-    width: min(300px, calc(100vw - 24px));
-    padding: 14px 14px 16px;
-  }
-
-  .inventory-items {
-    gap: 14px;
-  }
-
-  .inventory-slot {
-    width: 62px;
-    height: 62px;
-  }
-
-  .item-icon {
-    font-size: 38px;
-  }
-
-  .achievement-card {
-    max-height: min(430px, calc(100vh - 88px));
-  }
-
-  .achievement-entry {
-    padding: 10px;
-  }
-
-  .achievement-entry-icon {
-    width: 42px;
-    height: 42px;
-    font-size: 22px;
-  }
-
-  .achievement-entry-copy strong {
-    font-size: 14px;
-  }
-
-  .achievement-entry-copy p {
-    font-size: 11px;
-  }
-
-  .reward-stack {
-    width: min(380px, calc(100vw - 24px));
-    height: min(440px, calc(100vh - 24px));
-  }
-
-  .achievement-toast {
-    padding: 18px 18px 16px;
+    width: min(380px, calc(100vw - 16px));
+    padding: 18px 18px 20px;
     border-radius: 20px;
   }
 
-  .toast-icon {
-    width: 62px;
-    height: 62px;
-    margin-bottom: 12px;
-    font-size: 30px;
+  .overlay-panel-header {
+    margin-bottom: 16px;
   }
 
-  .achievement-toast h3 {
-    margin-bottom: 12px;
-    font-size: 22px;
+  .overlay-panel-header strong {
+    font-size: 20px;
   }
 
-  .achievement-toast strong {
-    margin-bottom: 6px;
+  .panel-close-button {
     font-size: 28px;
   }
 
-  .achievement-toast p {
+  .inventory-items {
+    gap: 18px;
+    justify-content: space-between;
+  }
+
+  .inventory-slot {
+    width: 78px;
+    height: 78px;
+    border-radius: 20px;
+  }
+
+  .item-icon {
+    font-size: 46px;
+  }
+
+  .achievement-panel {
+    left: 8px;
+    top: 40px;
+    bottom: 106px;
+  }
+
+  .achievement-card {
+    width: min(830px, calc(100vw - 16px));
+    height: 100%;
+    max-height: none;
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .achievement-list {
+    flex: 1 1 auto;
+    min-height: 260px;
+    max-height: none;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .achievement-progress-copy {
     font-size: 14px;
   }
 
+  .achievement-progress-track {
+    height: 22px;
+  }
+
+  .achievement-entry {
+    gap: 14px;
+    padding: 12px;
+  }
+
+  .achievement-entry-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 26px;
+  }
+
+  .achievement-entry-copy strong {
+    font-size: 22px;
+  }
+
+  .achievement-entry-copy p {
+    font-size: 16px;
+    line-height: 1.4;
+  }
+
+  .achievement-locked-title {
+    font-size: 13px;
+  }
+
+  .achievement-locked-entry strong {
+    font-size: 16px;
+  }
+
+  .achievement-locked-entry p {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .reward-stack-overlay {
+    padding: 14px;
+  }
+
+  .reward-stack {
+    width: min(560px, calc(100vw - 28px));
+    height: auto;
+    display: grid;
+    place-items: center;
+  }
+
+  .achievement-toast {
+    position: relative;
+    left: auto;
+    width: min(560px, calc(100vw - 28px));
+    max-width: 100%;
+    min-height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 34px 30px 30px;
+    border-radius: 24px;
+  }
+
+  .toast-icon {
+    width: 104px;
+    height: 104px;
+    margin-bottom: 22px;
+    font-size: 50px;
+  }
+
+  .achievement-toast-spark {
+    margin-bottom: 14px;
+    font-size: 40px;
+  }
+
+  .achievement-toast h3 {
+    margin-bottom: 18px;
+    font-size: 34px;
+  }
+
+  .achievement-toast strong {
+    margin-bottom: 14px;
+    font-size: 42px;
+  }
+
+  .achievement-toast p {
+    max-width: 460px;
+    margin: 0 auto 28px;
+    font-size: 22px;
+    line-height: 1.4;
+  }
+
   .toast-action {
-    min-width: 200px;
-    height: 44px;
-    font-size: 15px;
+    min-width: 320px;
+    height: 72px;
+    padding: 0 34px;
+    font-size: 24px;
+  }
+
+  .choice-confirmation-overlay {
+    padding: 16px;
+  }
+
+  .choice-confirmation-card {
+    width: min(620px, calc(100vw - 28px));
+    padding: 34px 30px 28px;
+    border-radius: 26px;
+  }
+
+  .choice-confirmation-icon {
+    width: 92px;
+    height: 92px;
+    margin-bottom: 18px;
+    font-size: 46px;
+  }
+
+  .choice-confirmation-card h3 {
+    margin-bottom: 14px;
+    font-size: 34px;
+  }
+
+  .choice-confirmation-card p {
+    max-width: 440px;
+    margin-bottom: 24px;
+    font-size: 21px;
+    line-height: 1.45;
+  }
+
+  .choice-confirmation-actions {
+    gap: 14px;
+  }
+
+  .choice-confirmation-button {
+    min-height: 60px;
+    font-size: 18px;
   }
 }
 
-@media (max-width: 980px) and (orientation: landscape), (max-height: 500px) and (orientation: landscape) {
+@media (max-width: 980px) and (orientation: landscape),
+(max-height: 500px) and (orientation: landscape) {
+  .page--story-surface {
+    height: 100dvh;
+    min-height: 100dvh;
+    overflow: hidden;
+  }
+
   .story-frame {
     width: calc(100vw - 12px);
+    overflow: hidden;
   }
 
   .story-screen {
-    place-items: start center;
+    place-items: center;
+    overflow: hidden;
   }
 
   .comic-stage {
-    margin-top: -10px;
+    margin-top: 0;
+  }
+
+  .bottom-ui.left {
+    bottom: -8px;
+  }
+
+  .bottom-ui.right {
+    bottom: 2px;
   }
 }
 </style>
