@@ -6,6 +6,13 @@ import { useGameSession } from "./composables/useGameSession";
 import { loadGameSessionSnapshot } from "./services/gameSessionStorage";
 import type { ChoiceOverlay, DemoChoice, GameSessionSnapshot, StoryScreen } from "./types/gameFlow";
 
+declare global {
+  interface Window {
+    Goto?: (target: string | number) => void;
+    CurrentScene?: () => string;
+  }
+}
+
 const {
   achievementToast,
   canGoBack,
@@ -96,7 +103,7 @@ const storyWrapperStyle = computed(() => ({
 const usesCenteredOverlayLayout = computed(() => {
   const layout = storyScreen.value?.layout;
 
-  return layout === "l016" || layout === "l017" || layout === "l018";
+  return layout === "l016" || layout === "l018";
 });
 const handIconImage = computed(() => resolveImage("hand-icon.png"));
 const backpackImage = computed(() => resolveImage("plecak.png"));
@@ -247,9 +254,52 @@ function updateViewport(): void {
   viewportHeight.value = window.innerHeight;
 }
 
+function normalizeSceneId(target: string | number): string | null {
+  if (typeof target === "number" && Number.isFinite(target)) {
+    return `s${String(Math.trunc(target)).padStart(3, "0")}`;
+  }
+
+  if (typeof target !== "string") {
+    return null;
+  }
+
+  const trimmedTarget = target.trim().toLowerCase();
+
+  if (!trimmedTarget) {
+    return null;
+  }
+
+  const numericMatch = trimmedTarget.match(/\d+/);
+
+  if (!numericMatch) {
+    return trimmedTarget.startsWith("s") ? trimmedTarget : null;
+  }
+
+  return `s${numericMatch[0].padStart(3, "0")}`;
+}
+
 function navigateToScreen(screenId: string): void {
   isMenuOpen.value = false;
   goToScreen(screenId);
+}
+
+function gotoFromConsole(target: string | number): void {
+  const normalizedSceneId = normalizeSceneId(target);
+
+  if (!normalizedSceneId) {
+    console.warn(
+      "[Goto] Niepoprawny parametr. Uzyj np. Goto(22), Goto('22') albo Goto('scene 22')."
+    );
+    return;
+  }
+
+  if (!hasScreen(normalizedSceneId)) {
+    console.warn(`[Goto] Scena ${normalizedSceneId} nie istnieje.`);
+    return;
+  }
+
+  navigateToScreen(normalizedSceneId);
+  console.info(`[Goto] Przejscie do ${normalizedSceneId}.`);
 }
 
 function handleStartGame(): void {
@@ -325,10 +375,14 @@ function cancelPendingChoice(): void {
 onMounted(() => {
   updateViewport();
   window.addEventListener("resize", updateViewport);
+  window.Goto = gotoFromConsole;
+  window.CurrentScene = () => currentScreen.value.id;
 });
 
 onBeforeUnmount(() => {
   window.removeEventListener("resize", updateViewport);
+  delete window.Goto;
+  delete window.CurrentScene;
 });
 
 watch(
@@ -361,11 +415,9 @@ watch(
 </script>
 
 <template>
-  <main
-    class="page"
+  <main class="page"
     :class="{ 'page--hero-surface': usesHeroHeaderLayout, 'page--story-surface': !!storyScreen && !isEndingSummaryScreen }"
-    :style="{ '--overlay-hand-icon': `url('${handIconImage}')` }"
-  >
+    :style="{ '--overlay-hand-icon': `url('${handIconImage}')` }">
     <div v-if="isInitialLoaderVisible" class="startup-loader">
       <div class="startup-loader-card">
         <div class="startup-loader-spinner" aria-hidden="true"></div>
@@ -607,9 +659,9 @@ watch(
                   width: `${storyScreen.hotspot.width}px`,
                   height: `${storyScreen.hotspot.height}px`
                 }" @click="isGrzeniaPopupOpen = !isGrzeniaPopupOpen" :aria-label="storyScreen.infoPopup.title
-              ? `Pokaż popup: ${storyScreen.infoPopup.title}`
-              : 'Pokaż popup'
-              " :title="storyScreen.infoPopup.title
+                  ? `Pokaż popup: ${storyScreen.infoPopup.title}`
+                  : 'Pokaż popup'
+                  " :title="storyScreen.infoPopup.title
                 ? `Kliknij, aby otworzyć popup: ${storyScreen.infoPopup.title}`
                 : 'Kliknij, aby otworzyć popup'
                 " :aria-pressed="isGrzeniaPopupOpen"></button>
@@ -679,7 +731,8 @@ watch(
                     :aria-label="getOverlayChoice(overlay.choiceId)?.label ?? ''"
                     :disabled="!hasScreen(getOverlayChoice(overlay.choiceId)?.nextScreenId ?? null) || hasPendingRewardToast"
                     @click="requestOverlayChoice(overlay.choiceId)">
-                    <span class="overlay-choice-hand" :style="{ backgroundImage: `url('${handIconImage}')` }" aria-hidden="true"></span>
+                    <span class="overlay-choice-hand" :style="{ backgroundImage: `url('${handIconImage}')` }"
+                      aria-hidden="true"></span>
                   </button>
                 </div>
 
@@ -1006,19 +1059,25 @@ watch(
   border: 2px solid #7CAED3;
   border-radius: 16px;
   background: #fff;
-  box-shadow: 0 6px 18px rgba(72, 97, 124, 0.22);
+  /* box-shadow: 0 6px 18px rgba(72, 97, 124, 0.22); */
   display: grid;
   align-content: center;
   justify-items: center;
-  gap: 5px;
+  /* gap: 5px; */
   cursor: pointer;
+  background: linear-gradient(180deg, #ffffff 0%, #edf3ff 100%);
+  border: 2px solid #2f67c7;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .95), inset 0 -2px 4px rgba(47, 103, 199, .18), 0 3px 0 #1f4ea5, 0 6px 10px rgba(0, 0, 0, .18);
+
 }
 
 .menu-toggle span {
   width: 22px;
-  height: 2px;
-  border-radius: 999px;
-  background: #7CAED3;
+    height: 4px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, #5f95f5 0%, #2f67c7 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 1px 1px rgba(0, 0, 0, .12);
+    margin: 2px 0;
 }
 
 .page-menu-toggle {
@@ -2481,11 +2540,12 @@ watch(
     right: 8px;
     width: 44px;
     height: 44px;
-    border-radius: 14px;
+    border-radius: 50%;
   }
 
   .menu-toggle span {
     width: 18px;
+    background-color: #2F5E8E;
   }
 
   .side-menu {

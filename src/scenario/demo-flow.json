@@ -903,7 +903,10 @@
       "layout": "l017",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s021_l17_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s021_l17_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choicePresentation": "image-overlay",
@@ -962,7 +965,10 @@
       "layout": "l05",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s022_l05_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s022_l05_male_mobile_v01.png"
+      },
       "leftPanelWidth": 426,
       "rightPanelWidth": 854,
       "choices": [
@@ -995,7 +1001,10 @@
       "layout": "l05",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s023_l05_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s023_l05_male_mobile_v01.png"
+      },
       "leftPanelWidth": 426,
       "rightPanelWidth": 854,
       "choices": [
@@ -1028,7 +1037,10 @@
       "layout": "l03",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s024_l03_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s024_l03_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
@@ -1061,7 +1073,10 @@
       "layout": "l02",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s025_l02_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s025_l02_male_mobile_v01.png"
+      },
       "leftPanelWidth": 854,
       "rightPanelWidth": 426,
       "choices": [
@@ -1094,7 +1109,10 @@
       "layout": "l04",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s026_l04_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s026_l04_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
@@ -1127,7 +1145,10 @@
       "layout": "l04",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s027_l04_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s027_l04_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
@@ -1160,7 +1181,10 @@
       "layout": "l02",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s028_l02_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s028_l02_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
@@ -1193,7 +1217,10 @@
       "layout": "l02",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s029_l02_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s029_l02_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
@@ -1232,7 +1259,10 @@
       "layout": "l03",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s030_l03_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s030_l03_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
@@ -1271,7 +1301,10 @@
       "layout": "l018",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s031_l18_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s031_l18_male_mobile_v01.png"
+      },
       "leftPanelWidth": 1280,
       "rightPanelWidth": 0,
       "choicePresentation": "image-overlay",
@@ -1344,7 +1377,10 @@
       "layout": "l01",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s032_l01_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s032_l01_male_mobile_v01.png"
+      },
       "leftPanelWidth": 426,
       "rightPanelWidth": 854,
       "choices": [
@@ -1377,7 +1413,10 @@
       "layout": "l01",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s033_l01_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s033_l01_male_mobile_v01.png"
+      },
       "leftPanelWidth": 426,
       "rightPanelWidth": 854,
       "choices": [
@@ -1410,7 +1449,10 @@
       "layout": "l01",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s034_l01_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s034_l01_male_mobile_v01.png"
+      },
       "leftPanelWidth": 426,
       "rightPanelWidth": 854,
       "choices": [
@@ -1443,7 +1485,10 @@
       "layout": "l016",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s035_l16_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s035_l16_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choicePresentation": "image-overlay",
@@ -1502,7 +1547,10 @@
       "layout": "l07",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s036_l07_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s036_l07_male_mobile_v01.png"
+      },
       "leftPanelWidth": 422,
       "rightPanelWidth": 850,
       "choices": [
@@ -1540,7 +1588,10 @@
       "layout": "l09",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s037_l09_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s037_l09_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
@@ -1578,7 +1629,10 @@
       "layout": "l012",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s038_l12_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s038_l12_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
@@ -1621,7 +1675,10 @@
       "layout": "l03",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s039_l03_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s039_l03_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
@@ -1654,7 +1711,10 @@
       "layout": "l03",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s040_l03_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s040_l03_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
@@ -1687,7 +1747,10 @@
       "layout": "l03",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s041_l03_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s041_l03_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
@@ -1720,7 +1783,10 @@
       "layout": "l02",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s042_l02_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s042_l02_male_mobile_v01.png"
+      },
       "leftPanelWidth": 854,
       "rightPanelWidth": 426,
       "choices": [
@@ -1759,7 +1825,10 @@
       "layout": "l01",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s043_l01_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s043_l01_male_mobile_v01.png"
+      },
       "leftPanelWidth": 426,
       "rightPanelWidth": 854,
       "choices": [
@@ -1792,7 +1861,10 @@
       "layout": "l02",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s044_l02_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s044_l02_male_mobile_v01.png"
+      },
       "leftPanelWidth": 854,
       "rightPanelWidth": 426,
       "choices": [
@@ -1825,7 +1897,10 @@
       "layout": "l018",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s045_l18_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s045_l18_male_mobile_v01.png"
+      },
       "leftPanelWidth": 1280,
       "rightPanelWidth": 0,
       "choicePresentation": "image-overlay",
@@ -1898,7 +1973,10 @@
       "layout": "l01",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s046_l01_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s046_l01_male_mobile_v01.png"
+      },
       "leftPanelWidth": 426,
       "rightPanelWidth": 854,
       "choices": [
@@ -1931,7 +2009,10 @@
       "layout": "l01",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s120_l01_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s120_l01_male_mobile_v01.png"
+      },
       "leftPanelWidth": 426,
       "rightPanelWidth": 854,
       "choices": [
@@ -1964,7 +2045,10 @@
       "layout": "l02",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s121_l02_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s121_l02_male_mobile_v01.png"
+      },
       "leftPanelWidth": 854,
       "rightPanelWidth": 426,
       "choices": [
@@ -1997,7 +2081,10 @@
       "layout": "l02",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s119_l02_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s119_l02_male_mobile_v01.png"
+      },
       "leftPanelWidth": 854,
       "rightPanelWidth": 426,
       "choices": [
@@ -2036,7 +2123,10 @@
       "layout": "l03",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s047_l03_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s047_l03_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
@@ -2075,7 +2165,10 @@
       "layout": "l02",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s048_l02_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s048_l02_male_mobile_v01.png"
+      },
       "leftPanelWidth": 854,
       "rightPanelWidth": 426,
       "choices": [
@@ -2120,7 +2213,10 @@
       "layout": "l03",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s049_l03_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s049_l03_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [
