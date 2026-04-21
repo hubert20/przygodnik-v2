@@ -1312,27 +1312,27 @@
         {
           "choiceId": "go-instead-of-seba",
           "x": 0,
-          "y": 420,
+          "y": 318,
           "width": 427,
-          "height": 205,
+          "height": 308,
           "buttonX": 0,
           "buttonY": 0
         },
         {
           "choiceId": "wait-for-break",
           "x": 427,
-          "y": 420,
+          "y": 318,
           "width": 426,
-          "height": 205,
+          "height": 308,
           "buttonX": 0,
           "buttonY": 0
         },
         {
           "choiceId": "knock-and-speak",
           "x": 853,
-          "y": 420,
+          "y": 318,
           "width": 427,
-          "height": 205,
+          "height": 308,
           "buttonX": 0,
           "buttonY": 0
         }
@@ -1496,20 +1496,20 @@
         {
           "choiceId": "tell-mara-legend",
           "x": 0,
-          "y": 405,
-          "width": 640,
-          "height": 220,
-          "buttonX": 0,
-          "buttonY": 0
+          "y": 317,
+          "width": 635,
+          "height": 308,
+          "buttonX": 190,
+          "buttonY": 28
         },
         {
           "choiceId": "ask-for-memory-portrait",
-          "x": 640,
-          "y": 405,
-          "width": 640,
-          "height": 220,
-          "buttonX": 0,
-          "buttonY": 0
+          "x": 645,
+          "y": 317,
+          "width": 635,
+          "height": 308,
+          "buttonX": 110,
+          "buttonY": 28
         }
       ],
       "choices": [
@@ -1908,27 +1908,27 @@
         {
           "choiceId": "option-1",
           "x": 0,
-          "y": 420,
+          "y": 318,
           "width": 427,
-          "height": 205,
+          "height": 308,
           "buttonX": 0,
           "buttonY": 0
         },
         {
           "choiceId": "option-2",
           "x": 427,
-          "y": 420,
+          "y": 318,
           "width": 426,
-          "height": 205,
+          "height": 308,
           "buttonX": 0,
           "buttonY": 0
         },
         {
           "choiceId": "option-3",
           "x": 853,
-          "y": 420,
+          "y": 318,
           "width": 427,
-          "height": 205,
+          "height": 308,
           "buttonX": 0,
           "buttonY": 0
         }
