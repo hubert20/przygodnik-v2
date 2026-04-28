@@ -5233,7 +5233,10 @@
       "layout": "l01",
       "title": "PRZYGODNIK",
       "subtitle": "Twoja przygoda z pewnoscia siebie rozwija sie tutaj!",
-      "image": "s011_l03_base_desktop_v01.png",
+      "image": "s050_l03_male_desktop_v01.png",
+      "imageVariants": {
+        "mobileLandscape": "s050_l03_male_mobile_v01.png"
+      },
       "leftPanelWidth": 640,
       "rightPanelWidth": 640,
       "choices": [

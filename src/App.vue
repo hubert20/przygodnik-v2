@@ -62,7 +62,7 @@ const viewportWidth = ref(typeof window === "undefined" ? 1440 : window.innerWid
 const viewportHeight = ref(typeof window === "undefined" ? 900 : window.innerHeight);
 const endingSessionSnapshot = ref<GameSessionSnapshot | null>(null);
 
-const menuItems = ["Start", "O grze", "Jak grac", "Kontakt"];
+const menuItems = ["O grze", "Jak grac", "Kontakt"];
 const endingCreditsItems = ["Autorzy", "PM-owie", "Programiści", "Konsultanci"];
 const endingLinksItems = [
   "Link do poprzedniej części",
@@ -108,9 +108,12 @@ const usesCenteredOverlayLayout = computed(() => {
 const handIconImage = computed(() => resolveImage("hand-icon.png"));
 const backpackImage = computed(() => resolveImage("plecak.png"));
 const partnerLogosImage = computed(() => resolveImage("tkmax-ap-logo.png"));
+const uiButtonGreen1Bg = computed(() => `url('${resolveImage("button-style-3.png")}')`);
+const uiPopupTextureBg = computed(() => `url('${resolveImage("popup.png")}')`);
 const isInitialLoaderVisible = ref(true);
 const hasInitialScreenLoaded = ref(false);
 const isEndingSummaryScreen = computed(() => storyScreen.value?.id === endingSummaryScreenId);
+const isWelcomeScreenActive = computed(() => !!welcomeScreen.value);
 const isLandingScreen = computed(() => !!welcomeScreen.value || !!introScreen.value);
 const usesHeroHeaderLayout = computed(() => isLandingScreen.value || isEndingSummaryScreen.value);
 const shouldShowFrameHeader = computed(() => showFrameHeader.value || isEndingSummaryScreen.value);
@@ -329,6 +332,10 @@ function openGameMenu(): void {
   isMenuOpen.value = true;
 }
 
+function toggleGameMenu(): void {
+  isMenuOpen.value = !isMenuOpen.value;
+}
+
 function requestStoryChoice(choice: DemoChoice): void {
   if (hasPendingRewardToast.value) {
     return;
@@ -416,7 +423,11 @@ watch(
 
 <template>
   <main class="page"
-    :class="{ 'page--hero-surface': usesHeroHeaderLayout, 'page--story-surface': !!storyScreen && !isEndingSummaryScreen }"
+    :class="{
+      'page--hero-surface': usesHeroHeaderLayout,
+      'page--story-surface': !!storyScreen && !isEndingSummaryScreen,
+      'page--welcome-surface': isWelcomeScreenActive
+    }"
     :style="{ '--overlay-hand-icon': `url('${handIconImage}')` }">
     <div v-if="isInitialLoaderVisible" class="startup-loader">
       <div class="startup-loader-card">
@@ -433,25 +444,29 @@ watch(
       </div>
     </div>
 
-    <button v-if="!usesHeroHeaderLayout" class="menu-toggle page-menu-toggle" @click="isMenuOpen = !isMenuOpen"
+    <button v-if="!usesHeroHeaderLayout" class="menu-toggle page-menu-toggle" @click.stop="toggleGameMenu"
       aria-label="Menu">
       <span></span>
       <span></span>
       <span></span>
     </button>
 
-    <aside class="side-menu" :class="{ open: isMenuOpen }">
+    <aside v-show="isMenuOpen" class="side-menu">
       <a v-for="item in menuItems" :key="item" href="#">{{ item }}</a>
-      <button class="side-menu-action restart-action" type="button" @click="handleRestartGame">
+      <button class="side-menu-action" type="button" @click="handleRestartGame">
         Restart gry
       </button>
     </aside>
 
     <section class="game-frame" :class="{
       'story-frame': !!storyScreen && !isEndingSummaryScreen,
-      'game-frame--hero': usesHeroHeaderLayout
+      'game-frame--hero': usesHeroHeaderLayout,
+      'game-frame--welcome': isWelcomeScreenActive
     }">
-      <header v-if="shouldShowFrameHeader" class="game-header" :class="{ 'game-header--hero': usesHeroHeaderLayout }">
+      <header v-if="shouldShowFrameHeader" class="game-header" :class="{
+        'game-header--hero': usesHeroHeaderLayout,
+        'game-header--welcome': isWelcomeScreenActive
+      }">
         <div class="brand-block">
           <h1>{{ currentScreen.title }}</h1>
           <p>{{ currentScreen.subtitle }}</p>
@@ -459,7 +474,7 @@ watch(
         <div class="logos">
           <img class="logos-image" :src="partnerLogosImage" alt="TK Maxx i Akademia Przyszlosci" />
         </div>
-        <button v-if="usesHeroHeaderLayout" class="menu-toggle hero-menu-toggle" @click="isMenuOpen = !isMenuOpen"
+        <button v-if="usesHeroHeaderLayout" class="menu-toggle hero-menu-toggle" @click.stop="toggleGameMenu"
           aria-label="Menu">
           <span></span>
           <span></span>
@@ -469,16 +484,18 @@ watch(
 
       <section v-if="welcomeScreen" class="screen-content framed-screen welcome-screen">
         <div class="welcome-layout">
-          <img class="welcome-image" :src="resolveImage(welcomeScreen.image)" alt="Ekran powitalny Przygodnika" />
-          <div class="welcome-copy">
-            <h2 v-html="welcomeScreen.heading"></h2>
-            <p v-html="welcomeScreen.description"></p>
+          <div class="welcome-visual-stage" aria-hidden="true"></div>
+          <div class="welcome-copy-panel">
+            <div class="welcome-copy">
+              <h2 v-html="welcomeScreen.heading"></h2>
+              <p v-html="welcomeScreen.description"></p>
+            </div>
+            <button class="primary-cta" :disabled="!hasScreen(welcomeScreen.nextScreenId)"
+              @click="navigateToScreen(welcomeScreen.nextScreenId)">
+              {{ welcomeScreen.primaryActionLabel }}
+            </button>
           </div>
         </div>
-        <button class="primary-cta" :disabled="!hasScreen(welcomeScreen.nextScreenId)"
-          @click="navigateToScreen(welcomeScreen.nextScreenId)">
-          {{ welcomeScreen.primaryActionLabel }}
-        </button>
       </section>
 
       <section v-if="introScreen" class="screen-content framed-screen intro-screen">
@@ -713,7 +730,7 @@ watch(
                     <span>Cofnij</span>
                   </button>
                   <template v-if="!usesImageOverlayChoices">
-                    <button v-for="choice in visibleStoryChoices" :key="choice.id" class="choice-button"
+                    <button v-for="choice in visibleStoryChoices" :key="choice.id" class="button-rough-green-1"
                       :disabled="!hasScreen(choice.nextScreenId) || hasPendingRewardToast"
                       @click="requestStoryChoice(choice)">
                       {{ choice.label }}
@@ -801,7 +818,7 @@ watch(
                       <span class="toast-icon item-toast-icon">{{ itemToast.icon }}</span>
                       <strong>{{ itemToast.label }}</strong>
                       <p>{{ itemToast.description }}</p>
-                      <button class="toast-action" @click="saveItemToast">Dodaj do plecaka</button>
+                      <button class="toast-action button-rough-green-1" @click="saveItemToast">Dodaj do plecaka</button>
                     </div>
 
                     <div v-if="itemLostToast && !itemToast" class="achievement-toast item-lost-toast">
@@ -810,7 +827,7 @@ watch(
                       <span class="toast-icon item-lost-toast-icon">{{ itemLostToast.icon }}</span>
                       <strong>{{ itemLostToast.label }}</strong>
                       <p>{{ itemLostToast.description }}</p>
-                      <button class="toast-action" @click="saveItemLostToast">Akceptuję utratę</button>
+                      <button class="toast-action button-rough-green-1" @click="saveItemLostToast">Akceptuję utratę</button>
                     </div>
 
                     <div v-if="achievementToast && !itemToast && !itemLostToast"
@@ -820,7 +837,7 @@ watch(
                       <span class="toast-icon">{{ achievementToast.icon }}</span>
                       <strong>{{ achievementToast.label }}</strong>
                       <p>{{ achievementToast.description }}</p>
-                      <button class="toast-action" @click="saveAchievementToast">Zapisz osiagniecie</button>
+                      <button class="toast-action button-rough-green-1" @click="saveAchievementToast">Zapisz osiagniecie</button>
                     </div>
                   </div>
                 </div>
@@ -834,7 +851,7 @@ watch(
                     <h3 id="choice-confirmation-title">{{ activeChoiceConfirmation.title }}</h3>
                     <p>{{ activeChoiceConfirmation.body }}</p>
                     <div class="choice-confirmation-actions">
-                      <button class="choice-confirmation-button choice-confirmation-button--confirm"
+                      <button class="choice-confirmation-button choice-confirmation-button--confirm button-rough-green-1"
                         @click="confirmPendingChoice">
                         {{ activeChoiceConfirmation.confirmLabel }}
                       </button>
@@ -885,6 +902,10 @@ watch(
   display: block;
   overflow-y: auto;
   background: linear-gradient(-90deg, rgba(148, 200, 134, 1) 0%, rgba(200, 216, 130, 1) 50%, rgba(249, 230, 125, 1) 100%);
+}
+
+.page--welcome-surface {
+  background: #2a843f;
 }
 
 .startup-loader {
@@ -988,6 +1009,26 @@ watch(
   background: transparent;
 }
 
+.game-frame--welcome {
+  position: relative;
+  overflow: hidden;
+  background: #2a843f;
+}
+
+.game-frame--welcome::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 94%;
+  height: 138%;
+  background: #c1d82f;
+  border-top-right-radius: 20vw 50%;
+  border-bottom-right-radius: 20vw 50%;
+  transform: translateY(-50%);
+  z-index: 0;
+}
+
 .story-frame {
   width: min(1280px, calc((100vh - 32px) * 1280 / 660), calc(100vw - 32px));
   aspect-ratio: 1280 / 660;
@@ -1011,6 +1052,11 @@ watch(
   grid-template-columns: minmax(0, 1fr) 54px;
   align-items: center;
   padding: 22px 40px 16px;
+}
+
+.game-header--welcome {
+  border-bottom: none;
+  padding: 26px 48px 10px;
 }
 
 .brand-block h1 {
@@ -1042,6 +1088,11 @@ watch(
   justify-self: auto;
 }
 
+.game-frame--welcome .brand-block h1,
+.game-frame--welcome .brand-block p {
+  color: #111111;
+}
+
 .logos-image {
   width: min(250px, 24vw);
   height: auto;
@@ -1054,30 +1105,56 @@ watch(
 }
 
 .menu-toggle {
+  position: relative;
+  isolation: isolate;
   width: 54px;
   height: 54px;
-  border: 2px solid #7CAED3;
-  border-radius: 16px;
-  background: #fff;
-  /* box-shadow: 0 6px 18px rgba(72, 97, 124, 0.22); */
+  padding: 0;
+  border: none;
+  background: transparent;
   display: grid;
   align-content: center;
   justify-items: center;
-  /* gap: 5px; */
   cursor: pointer;
-  background: linear-gradient(180deg, #ffffff 0%, #edf3ff 100%);
-  border: 2px solid #2f67c7;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .95), inset 0 -2px 4px rgba(47, 103, 199, .18), 0 3px 0 #1f4ea5, 0 6px 10px rgba(0, 0, 0, .18);
+  appearance: none;
+  -webkit-appearance: none;
+  filter: drop-shadow(0 2px 4px rgba(31, 78, 165, 0.18));
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
 
+.menu-toggle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96' preserveAspectRatio='none'%3E%3Cpath d='M19 13C29 9 43 10 57 10C72 10 82 10 88 15C94 19 95 28 94 39C96 49 95 61 92 72C88 81 79 86 67 86C53 87 41 87 29 85C17 84 9 79 7 69C4 58 5 47 7 37C5 26 8 18 19 13Z' fill='%23ffffff' stroke='%232f67c7' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.menu-toggle:hover {
+  transform: translateY(-1px);
+  filter: drop-shadow(0 3px 6px rgba(31, 78, 165, 0.2));
+}
+
+.menu-toggle:active {
+  transform: translateY(1px);
+  filter: drop-shadow(0 1px 3px rgba(31, 78, 165, 0.16));
 }
 
 .menu-toggle span {
   width: 22px;
-    height: 4px;
-    border-radius: 999px;
-    background: linear-gradient(180deg, #5f95f5 0%, #2f67c7 100%);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .45), 0 1px 1px rgba(0, 0, 0, .12);
-    margin: 2px 0;
+  height: 4px;
+  border-radius: 0;
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 8' preserveAspectRatio='none'%3E%3Cpath d='M4 2.1C9 1.5 15 1.7 22 1.7C29 1.7 35 1.5 40 2.1C41.6 2.4 42.4 3.1 42.4 4C42.4 4.9 41.6 5.6 40 5.9C35 6.5 29 6.3 22 6.3C15 6.3 9 6.5 4 5.9C2.4 5.6 1.6 4.9 1.6 4C1.6 3.1 2.4 2.4 4 2.1Z' fill='%23558dee'/%3E%3Cpath d='M5 2.55C10 2 15.8 2.1 22 2.1C28.2 2.1 34 2 39 2.55' fill='none' stroke='rgba(255,255,255,0.38)' stroke-width='0.8' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  box-shadow: none;
+  margin: 2px 0;
 }
 
 .page-menu-toggle {
@@ -1089,24 +1166,41 @@ watch(
 
 .side-menu {
   position: fixed;
+  isolation: isolate;
   top: 84px;
   right: 20px;
-  width: 0;
-  overflow: hidden;
-  background: rgba(255, 255, 255, 0.96);
-  border-radius: 16px;
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.18);
-  transition: width 0.24s ease;
-  z-index: 20;
+  width: 220px;
+  overflow: visible;
+  background: transparent;
+  border-radius: 0;
+  filter: drop-shadow(0 10px 24px rgba(0, 0, 0, 0.14));
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+  transform-origin: top right;
+  transition: transform 0.18s ease, filter 0.18s ease;
+  z-index: 48;
 }
 
-.side-menu.open {
-  width: 220px;
+.side-menu::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 320' preserveAspectRatio='none'%3E%3Cpath d='M21 12C41 8 75 10 114 9C156 8 196 8 230 12C242 14 250 22 250 34C252 67 251 110 250 153C252 205 252 249 249 286C247 299 237 308 222 309C180 313 135 312 89 311C65 311 42 310 24 307C12 304 5 294 4 282C1 236 2 193 2 149C2 106 2 66 5 30C6 20 11 14 21 12Z' fill='rgba(255,255,255,0.96)' stroke='%23dfe7f3' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.side-menu > * {
+  position: relative;
+  z-index: 1;
 }
 
 .side-menu a {
   display: block;
-  padding: 14px 18px;
+  padding: 15px 18px 8px 18px;
   color: #35506e;
   font-weight: 700;
   text-decoration: none;
@@ -1127,11 +1221,6 @@ watch(
   text-align: left;
   white-space: nowrap;
   cursor: pointer;
-}
-
-.restart-action {
-  background: #fbe4e6;
-  color: #8b3140;
 }
 
 .framed-screen {
@@ -1158,6 +1247,12 @@ watch(
   justify-items: center;
 }
 
+.welcome-screen {
+  position: relative;
+  z-index: 1;
+  justify-items: stretch;
+}
+
 .game-frame--hero .framed-screen {
   width: 100%;
   height: auto;
@@ -1176,7 +1271,29 @@ watch(
   margin-top: 24px;
 }
 
-.welcome-image,
+.welcome-layout {
+  max-width: none;
+  min-height: calc(100vh - 130px);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(28px, 4vw, 56px);
+  margin-top: 0;
+}
+
+.welcome-visual-stage {
+  width: 100%;
+  min-height: 100%;
+}
+
+.welcome-copy-panel {
+  width: 100%;
+  max-width: none;
+  justify-self: stretch;
+  display: grid;
+  justify-items: start;
+  gap: 22px;
+  padding: clamp(20px, 5vh, 40px) 0 clamp(36px, 8vh, 64px);
+}
+
 .intro-image {
   width: 100%;
   max-width: 360px;
@@ -1198,9 +1315,10 @@ watch(
 
 .welcome-copy p {
   margin: 0;
-  color: #2f4a65;
-  line-height: 1.5;
-  font-size: 16px;
+  color: #1f2f20;
+  line-height: 1.55;
+  font-size: 18px;
+  max-width: 430px;
 }
 
 .intro-form {
@@ -1244,7 +1362,7 @@ watch(
 }
 
 .primary-cta {
-  margin-top: 28px;
+  margin-top: 0;
   min-width: 280px;
   height: 64px;
   border: 2px solid #eea474;
@@ -1887,26 +2005,46 @@ watch(
 
 .icon-button {
   position: relative;
+  isolation: isolate;
   width: 70px;
   height: 70px;
-  border-radius: 14px;
-  border: 2px solid #c8d3e7;
-  background: #fff;
+  border: none;
+  background: transparent;
   cursor: pointer;
-  box-shadow: 0 14px 28px rgba(65, 83, 104, 0.18);
   display: grid;
   place-items: center;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  color: #6f88a3;
+  filter: drop-shadow(0 4px 10px rgba(65, 83, 104, 0.18));
+  transition: transform 0.18s ease, filter 0.18s ease;
 }
 
 .icon-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 18px 30px rgba(65, 83, 104, 0.22);
+  transform: translateY(-1px);
+  filter: drop-shadow(0 6px 14px rgba(65, 83, 104, 0.24));
+}
+
+.icon-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96' preserveAspectRatio='none'%3E%3Cpath d='M20 13C30 9 43 10 57 10C70 10 80 10 87 14C93 18 95 27 94 39C96 50 95 61 92 73C88 82 79 87 67 87C53 88 42 88 29 86C18 85 10 80 7 71C4 60 4 49 6 38C5 27 8 18 20 13Z' fill='%23ffffff' stroke='%23c8d3e7' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.icon-button > * {
+  position: relative;
+  z-index: 1;
 }
 
 .icon-button svg {
   width: 52px;
-  height: 52x;
+  height: 52px;
 }
 
 .backpack-icon-image {
@@ -1916,13 +2054,29 @@ watch(
 }
 
 .backpack-button {
-  border-color: #67a4da;
   color: #7ca9cf;
+  filter: drop-shadow(0 4px 10px rgba(80, 139, 212, 0.22));
+}
+
+.backpack-button::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96' preserveAspectRatio='none'%3E%3Cpath d='M20 13C30 9 43 10 57 10C70 10 80 10 87 14C93 18 95 27 94 39C96 50 95 61 92 73C88 82 79 87 67 87C53 88 42 88 29 86C18 85 10 80 7 71C4 60 4 49 6 38C5 27 8 18 20 13Z' fill='%23ffffff' stroke='%2367a4da' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 
 .trophy-button {
-  border-color: #ff8b45;
   color: #f08c2a;
+  filter: drop-shadow(0 4px 10px rgba(240, 140, 42, 0.2));
+}
+
+.backpack-button:hover {
+  filter: drop-shadow(0 6px 14px rgba(80, 139, 212, 0.3));
+}
+
+.trophy-button::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96' preserveAspectRatio='none'%3E%3Cpath d='M20 13C30 9 43 10 57 10C70 10 80 10 87 14C93 18 95 27 94 39C96 50 95 61 92 73C88 82 79 87 67 87C53 88 42 88 29 86C18 85 10 80 7 71C4 60 4 49 6 38C5 27 8 18 20 13Z' fill='%23ffffff' stroke='%23ff8b45' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.trophy-button:hover {
+  filter: drop-shadow(0 6px 14px rgba(240, 140, 42, 0.28));
 }
 
 .inventory-badge {
@@ -1947,27 +2101,63 @@ watch(
 }
 
 .back-button {
-  min-width: 72px;
-  height: 58px;
-  border: 2px solid #999;
-  border-radius: 14px;
-  background: #fffdf8;
-  color: #333;
-  font-weight: 700;
+  position: relative;
+  isolation: isolate;
+  min-width: 86px;
+  min-height: 64px;
+  padding: 10px 18px 14px;
+  border: none;
+  background: transparent;
+  color: #3a3936;
+  font-weight: 600;
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  box-shadow: 0 8px 0 rgba(43, 43, 43, 0.18);
+  gap: 4px;
   cursor: pointer;
   line-height: 1;
+  appearance: none;
+  -webkit-appearance: none;
+  filter: drop-shadow(0 4px 10px rgba(39, 36, 29, 0.16));
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.back-button::before,
+.back-button::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+}
+
+.back-button::before {
+  content: none;
+}
+
+.back-button::after {
+  z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 96' preserveAspectRatio='none'%3E%3Cpath d='M22 12C37 8 60 9 88 8C113 8 128 8 137 12C146 15 150 23 149 34C153 42 153 56 148 67C145 79 133 84 116 85C94 87 72 87 47 85C30 84 19 82 12 76C5 70 5 58 8 47C5 35 8 21 22 12Z' fill='%23fffdf8' stroke='%23979086' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.back-button:hover {
+  transform: translateY(-1px);
+  filter: drop-shadow(0 6px 14px rgba(39, 36, 29, 0.6));
+}
+
+.back-button:active {
+  transform: translateY(1px);
+  filter: drop-shadow(0 2px 6px rgba(39, 36, 29, 0.14));
 }
 
 .back-button:disabled {
   opacity: 0.72;
   cursor: not-allowed;
-  box-shadow: none;
+  transform: none;
+  filter: none;
 }
 
 .back-button span {
@@ -1977,7 +2167,7 @@ watch(
 }
 
 .back-button-arrow {
-  font-size: 16px;
+  font-size: 17px;
   line-height: 1;
 }
 
@@ -2008,6 +2198,71 @@ watch(
 
 .choice-button:last-child {
   background: #a6ce39;
+}
+
+.button-rough-green-1 {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 220px;
+  max-width: 100%;
+  min-height: 64px;
+  padding: 16px 38px;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.15;
+  text-align: center;
+  white-space: normal;
+  text-wrap: balance;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  text-shadow: 0 1px 0 rgba(82, 120, 23, 0.18);
+  filter: drop-shadow(0 4px 10px rgba(80, 104, 25, 0.4));
+  transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+.button-rough-green-1::before,
+.button-rough-green-1::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+}
+
+.button-rough-green-1::before {
+  z-index: -1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 84' preserveAspectRatio='none'%3E%3Cpath d='M26 11C52 7 95 9 140 8C194 6 250 6 317 10C336 11 350 18 351 33C355 42 354 53 350 61C347 73 332 76 313 76C252 79 190 79 117 78C83 78 48 77 23 73C10 71 4 60 7 47C4 35 6 20 26 11Z' fill='%238dbd2f' stroke='%23ffffff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+.button-rough-green-1::after {
+  content: none;
+}
+
+.button-rough-green-1:hover {
+  transform: translateY(-1px);
+  filter: drop-shadow(0 6px 14px rgba(80, 104, 25, 0.5));
+}
+
+.button-rough-green-1:active {
+  transform: translateY(1px);
+  filter: drop-shadow(0 2px 6px rgba(80, 104, 25, 0.16));
+}
+
+.button-rough-green-1:disabled {
+  opacity: 0.72;
+  cursor: not-allowed;
+  transform: none;
+  filter: none;
 }
 
 .choice-overlay-layer {
@@ -2041,7 +2296,7 @@ watch(
   display: block;
   border: 2px solid #ffffff;
   border-radius: 999px;
-  background-color: #85cee6;
+  background-color: #f5cf49;
   box-shadow: 0 10px 20px rgba(46, 64, 86, 0.28);
   background-repeat: no-repeat;
   background-position: center;
@@ -2352,26 +2607,26 @@ watch(
   position: absolute;
   left: 0;
   width: 100%;
-  padding: 26px 28px 24px;
+  padding: 32px 36px 28px;
   border-radius: 24px;
-  background: #fffdf9;
-  border: 3px solid #ffd972;
-  box-shadow: 0 22px 44px rgba(79, 63, 17, 0.24);
+  background-color: transparent;
+  background-image: v-bind(uiPopupTextureBg);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  border: none;
+  filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, .2));
   text-align: center;
 }
 
 .item-toast {
   top: 0;
   z-index: 2;
-  border-color: #7db7ea;
-  box-shadow: 0 22px 44px rgba(47, 93, 141, 0.22);
 }
 
 .item-lost-toast {
   top: 0;
   z-index: 2;
-  border-color: #f09b9b;
-  box-shadow: 0 22px 44px rgba(150, 63, 63, 0.22);
 }
 
 .achievement-toast-card {
@@ -2436,18 +2691,32 @@ watch(
 }
 
 .toast-action {
-  border: none;
-  border-radius: 14px;
-  background: #a6ce39;
-  /* background: linear-gradient(180deg, #a8d88f 0%, #88c66d 100%); */
-  color: #ffffff;
-  font-weight: 800;
-  padding: 12px 22px;
-  /* box-shadow: 0 10px 18px rgba(136, 198, 109, 0.35); */
+  font: inherit;
+  color: inherit;
+  line-height: inherit;
   cursor: pointer;
-  font-size: 16px;
-  border: 2px solid #8dbd2f;
-  box-shadow: inset 0 0 0 2px #ffffff, inset 0 0 0 12px #a6ce39, 0 8px 0 rgba(52, 86, 36, 0.26);
+  border: none;
+  background: transparent;
+}
+
+.button-green-1 {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 300px;
+  max-width: 100%;
+  min-height: 64px;
+  padding: 10px 20px;
+  background-color: transparent;
+  background-image: v-bind(uiButtonGreen1Bg);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+  box-shadow: none;
+  appearance: none;
+  -webkit-appearance: none;
+  text-align: center;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.12);
 }
 
 .choice-confirmation-overlay {
@@ -2502,6 +2771,7 @@ watch(
 .choice-confirmation-actions {
   display: grid;
   gap: 12px;
+  justify-items: center;
 }
 
 .choice-confirmation-button {
@@ -2517,6 +2787,23 @@ watch(
   background: linear-gradient(180deg, #a8d88f 0%, #88c66d 100%);
   color: #ffffff;
   box-shadow: 0 10px 18px rgba(136, 198, 109, 0.35);
+}
+
+.choice-confirmation-button--confirm.button-rough-green-1 {
+  width: auto;
+  justify-self: center;
+  background: transparent;
+  box-shadow: none;
+}
+
+.toast-action.button-rough-green-1,
+.choice-confirmation-button.button-rough-green-1 {
+  min-height: 64px;
+  padding: 16px 38px;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.15;
 }
 
 .choice-confirmation-button--cancel {
@@ -2540,7 +2827,6 @@ watch(
     right: 8px;
     width: 44px;
     height: 44px;
-    border-radius: 50%;
   }
 
   .menu-toggle span {
@@ -2553,7 +2839,7 @@ watch(
     right: 8px;
   }
 
-  .side-menu.open {
+  .side-menu {
     width: min(220px, calc(100vw - 16px));
   }
 
@@ -2678,6 +2964,20 @@ watch(
     font-size: 23px;
   }
 
+  .button-rough-green-1 {
+    min-width: 320px;
+    min-height: 74px;
+    padding: 16px 34px;
+    font-size: 22px;
+    color: #232323;
+    white-space: nowrap;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.16);
+  }
+
+  .button-rough-green-1::before {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 360 84' preserveAspectRatio='none'%3E%3Cpath d='M26 11C52 7 95 9 140 8C194 6 250 6 317 10C336 11 350 18 351 33C355 42 354 53 350 61C347 73 332 76 313 76C252 79 190 79 117 78C83 78 48 77 23 73C10 71 4 60 7 47C4 35 6 20 26 11Z' fill='%23abe53a' stroke='%23ffffff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  }
+
   .overlay-choice-hand {
     right: 8px;
     bottom: 8px;
@@ -2787,15 +3087,30 @@ watch(
   }
 
   .welcome-layout {
-    grid-template-columns: 1fr 2fr;
+    min-height: calc(100vh - 100px);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 12px;
+    margin-top: 0;
+  }
+
+  .game-frame--welcome::before {
+    top: 50%;
+    left: 0;
+    width: 92%;
+    height: 138%;
+    border-top-right-radius: 26vw 50%;
+    border-bottom-right-radius: 26vw 50%;
+    transform: translateY(-50%);
+  }
+
+  .welcome-copy-panel {
+    width: 100%;
+    gap: 14px;
+    padding: 12px 0 28px;
   }
 
   .intro-image {
     max-width: 240px;
-  }
-
-  .welcome-image {
-    max-width: 180px;
   }
 
   .welcome-copy h2,
@@ -2830,7 +3145,6 @@ watch(
   .primary-cta {
     min-width: 200px;
     height: 44px;
-    margin-top: 5px;
     font-size: 18px;
   }
 
@@ -2989,11 +3303,9 @@ watch(
     line-height: 1.4;
   }
 
-  .toast-action {
-    min-width: 320px;
-    height: 72px;
-    padding: 0 34px;
-    font-size: 24px;
+  .button-rough-green-1 {
+    width: min(100%, 560px);
+    min-width: 0;
   }
 
   .choice-confirmation-overlay {
@@ -3032,6 +3344,22 @@ watch(
   .choice-confirmation-button {
     min-height: 60px;
     font-size: 18px;
+  }
+
+  .toast-action.button-rough-green-1,
+  .choice-confirmation-button.button-rough-green-1 {
+    min-height: 74px;
+    padding: 16px 34px;
+    font-size: 22px;
+    line-height: 1.15;
+  }
+
+  .toast-action.button-rough-green-1 {
+    width: auto;
+    min-width: 220px;
+    max-width: 100%;
+    color: #232323;
+    white-space: nowrap;
   }
 }
 

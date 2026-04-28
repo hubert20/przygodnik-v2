@@ -17,34 +17,73 @@ import type {
 } from "../types/gameFlow";
 
 const demoFlow = demoFlowJson as DemoFlow;
-const targetAchievementsCount = 21;
+const targetAchievementsCount = 25;
 const screenIds = new Set(demoFlow.screens.map((screen) => screen.id));
 const removedAchievementIds = new Set(["ach-1", "ach-2"]);
 
+const achievementLabels: Record<string, string> = {
+  sleepyhead: "Śpioch",
+  "notebook-swap": "Podmianka",
+  "honest-courage": "Szczera odwaga",
+  "adventure-calls": "Przygoda wzywa",
+  "own-creativity": "Twórczość własna",
+  "friendly-motivation": "Przyjazna motywacja",
+  "older-friend": "Starsza przyjaciółka",
+  "poetry-corner": "Kącik poetycki",
+  "vanishing-mara": "Znikająca Mara",
+  "creative-mara": "Twórcza Mara",
+  "football-masters": "Mistrzowie piłki",
+  "grandmaster-title": "Tytuł arcymistrzowski",
+  "helpful-pack": "Pomocna paczka",
+  "school-match": "Mecz o szkołę",
+  checkmate: "Szach mat",
+  "chochlik-friendship": "Przyjaźń z chochlikami",
+  "green-listened": "Zieleń Wysłuchana",
+  "maze-triumph": "Triumf w labiryncie",
+  "the-answer-is-fire": "Odpowiedzią jest ogień",
+  "trust-is-key": "Zaufanie to podstawa",
+  "assertiveness-power": "Potęga asertywności",
+  "green-school": "Zielona szkoła",
+  "dream-team": "Drużyna marzeń",
+  "trust-pays-off": "Zaufanie popłaca",
+  "magic-word": "Magiczne słowo"
+};
+
 const achievementDescriptions: Record<string, string> = {
-  sleepyhead: "Gdy wezwała cię Pani Woźna, wolałeś lub wolałaś pospać jeszcze 5 minut.",
+  sleepyhead: "Gdy wezwała cię Pani Woźna, ty wolałeś/aś pospać jeszcze 5 minut.",
   "notebook-swap": "Zeszyt Przeznaczenia został podmieniony.",
-  "honest-courage": "Szczere podejście pomogło odzyskać Zeszyt Przeznaczenia.",
+  "honest-courage": "Szczere postawienie sprawy podziałało, odzyskano Zeszyt Przeznaczenia.",
+  "adventure-calls": "Drużyna ruszyła na przygodę!",
+  "own-creativity": "Dokończono rysunek Sabiny.",
+  "friendly-motivation": "Zachęcono Sabinę, by dokończyła rysunek.",
   "older-friend": "Sabina dołączyła do Drużyny.",
-  "friendly-motivation": "Zachęciłeś lub zachęciłaś Sabinę, by dokończyła rysunek.",
   "poetry-corner": "Po twoich zachętach Sabina odczytała swoje wiersze i przegoniła Marę ze szkoły.",
   "vanishing-mara": "Dzięki twojej kreatywności Mara zniknęła ze szkoły i wylądowała na bezludnej wyspie.",
   "creative-mara": "Dzięki tobie Mara Zniechęcenia odkryła potęgę kreatywności.",
-  "grandmaster-title": "Zagadka szachowa Wargina została rozwiązana.",
-  "football-masters": "Wygraliście mecz z licealistami.",
+  "football-masters": "Wygraliście mecz z licealistami!",
+  "grandmaster-title": "Zagadka szachowa Wargina została rozwiązana!",
   "school-match": "Pokonaliście Chochliki w piłkę nożną.",
-  checkmate: "Pokonałeś/aś chochliki w szachy.",
+  checkmate: "Pokonaliście chochliki w szachy.",
   "helpful-pack": "Pomogliście krzatom w kopalni kredy.",
   "chochlik-friendship": "Rozmowa z chochlikami okazała się najlepszym wyjściem.",
   "green-listened": "Porozmawialiście ze szkolnymi roślinami.",
   "maze-triumph": "Rozszyfrowaliście plan szkoły.",
-  "assertiveness-power": "Jasno postawiłeś lub postawiłaś granice.",
+  "assertiveness-power": "Jasno postawiono granice.",
   "trust-is-key": "Baśka rozwiązała zagadkę Lasownika.",
-  "the-answer-is-fire": "Rozwiązałeś lub rozwiązałaś zagadkę Lasownika.",
+  "the-answer-is-fire": "Rozwiązano zagadkę Lasownika.",
   "green-school": "Park został wysprzątany.",
   "dream-team": "Razem pokonaliście Żmija Zapomnienia.",
   "trust-pays-off": "Baśka pokonała Żmija Zapomnienia w pojedynku szermierczym.",
   "magic-word": "Negocjacje ze Żmijem się powiodły."
+};
+
+const inventoryItemLabels: Record<string, string> = {
+  "universal-key": "Klucz uniwersalny",
+  "destiny-notebook": "Zeszyt przeznaczenia",
+  "magic-brush": "Magiczny Pędzel",
+  "peacemaker-stick": "Kijek Przymierza",
+  "legendary-yarn": "Legendarny Kłębek Włóczki",
+  "fan-finger": "Cudowny Paluch Kibica"
 };
 
 const inventoryItemDescriptions: Record<string, string> = {
@@ -185,6 +224,7 @@ export function useGameSession() {
   function normalizeAchievement(achievement: ScreenAchievement): ScreenAchievement {
     return {
       ...achievement,
+    label: achievementLabels[achievement.id] ?? achievement.label,
       description:
         achievement.description ??
         achievementDescriptions[achievement.id] ??
@@ -195,6 +235,7 @@ export function useGameSession() {
   function normalizeInventoryItem(item: InventoryItem): InventoryItem {
     return {
       ...item,
+    label: inventoryItemLabels[item.id] ?? item.label,
       description:
         item.description ??
         inventoryItemDescriptions[item.id] ??
